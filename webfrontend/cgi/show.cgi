@@ -32,7 +32,7 @@ use CGI qw/:standard/;
 ##########################################################################
 
 # Version of this script
-my $version = "3.0.2";
+my $version = "3.0.3";
 
 # Figure out in which subfolder we are installed
 our $psubfolder = abs_path($0);
@@ -121,9 +121,7 @@ if ($dfc) {
 
   # Read data
   open(F,"<$home/data/plugins/$psubfolder/dailyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/dailyforecast.dat";
-    flock(F,2) if($flock);
     our @dfcdata = <F>;
-    flock(F,8) if($flock);
   close(F);
 
   foreach (@dfcdata){
@@ -196,11 +194,18 @@ if ($dfc) {
 
 if ($hfc) {
 
-  # Read data
+  # Get current weather data from database - Needed for Sunrise and Sunset
+  open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+    our $curdata = <F>;
+  close(F);
+  chomp $curdata;
+  my @fields = split(/\|/,$curdata);
+  $hour_sun_r = @fields[34];
+  $hour_sun_s = @fields[36];
+
+  # Read data for Hourly Forecast
   open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
-    flock(F,2) if($flock);
     our @hfcdata = <F>;
-    flock(F,8) if($flock);
   close(F);
 
   foreach (@hfcdata){
@@ -260,6 +265,7 @@ if ($hfc) {
 
   # Output Theme to Browser
   print "Content-type: text/html\n\n";
+print 
   open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html";
        while (<F>) {
          $_ =~ s/<!--\$(.*?)-->/${$1}/g;
@@ -277,9 +283,7 @@ if ($hfc) {
 
 # Get current weather data from database
 open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
-  flock(F,2) if($flock);
   our $curdata = <F>;
-  flock(F,8) if($flock);
 close(F);
 
 chomp $curdata;
