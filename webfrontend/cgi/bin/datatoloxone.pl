@@ -40,7 +40,7 @@ our $home = File::HomeDir->my_home;
 our $webpath = "/plugins/$psubfolder";
 
 # Version of this script
-my $version = "3.0.2";
+my $version = "3.0.3";
 
 our $pcfg             = new Config::Simple("$home/config/plugins/$psubfolder/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
@@ -665,6 +665,101 @@ my $dateref = DateTime->new(
 );
 
 #############################################
+# CURRENT CONDITIONS
+#############################################
+
+# Get current weather data from database
+open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+  our $curdata = <F>;
+close(F);
+
+chomp $curdata;
+
+my @fields = split(/\|/,$curdata);
+
+$cur_date = @fields[0];
+$cur_date_des = @fields[1];
+$cur_date_tz_des_sh = @fields[2];
+$cur_date_tz_des = @fields[3];
+$cur_date_tz = @fields[4];
+
+our $epochdate = DateTime->from_epoch(
+      epoch      => @fields[0],
+      time_zone => 'local',
+);
+
+$cur_day        = sprintf("%02d", $epochdate->day);
+$cur_month      = sprintf("%02d", $epochdate->month);
+$cur_hour       = sprintf("%02d", $epochdate->hour);
+$cur_min        = sprintf("%02d", $epochdate->minute);
+$cur_year       = $epochdate->year;
+$cur_loc_n      = @fields[5];
+$cur_loc_c      = @fields[6];
+$cur_loc_ccode  = @fields[7];
+$cur_loc_lat    = @fields[8];
+$cur_loc_long   = @fields[9];
+$cur_loc_el     = @fields[10];
+$cur_hu         = @fields[13];
+$cur_w_dirdes   = @fields[14];
+$cur_w_dir      = @fields[15];
+$cur_sr         = @fields[22];
+$cur_uvi        = @fields[24];
+$cur_we_icon    = @fields[27];
+$cur_we_code    = @fields[28];
+$cur_we_des     = @fields[29];
+$cur_moon_p     = @fields[30];
+$cur_moon_a     = @fields[31];
+$cur_moon_ph    = @fields[32];
+$cur_moon_h     = @fields[33];
+
+if (!$metric) {
+$cur_tt         = @fields[11]*1.8+32;
+$cur_tt_fl      = @fields[12]*1.8+32;
+$cur_w_sp       = @fields[16]*0.621371192;
+$cur_w_gu       = @fields[17]*0.621371192;
+$cur_w_ch       = @fields[18]*1.8+32;
+$cur_pr         = @fields[19]*0.0295301;
+$cur_dp         = @fields[20]*1.8+32;
+$cur_vis        = @fields[21]*0.621371192;
+$cur_hi         = @fields[23]*1.8+32;
+$cur_prec_today = @fields[25]*0.0393700787;
+$cur_prec_1hr   = @fields[26]*0.0393700787;
+} else {
+$cur_tt         = @fields[11];
+$cur_tt_fl      = @fields[12];
+$cur_w_sp       = @fields[16];
+$cur_w_gu       = @fields[17];
+$cur_w_ch       = @fields[18];
+$cur_pr         = @fields[19];
+$cur_dp         = @fields[20];
+$cur_vis        = @fields[21];
+$cur_hi         = @fields[23];
+$cur_prec_today = @fields[25];
+$cur_prec_1hr   = @fields[26];
+}
+
+$cur_sun_r = "@fields[34]:@fields[35]";
+$cur_sun_s = "@fields[36]:@fields[37]";
+
+# Use night icons between sunset and sunrise
+$hour_sun_r = @fields[34];
+$hour_sun_s = @fields[36];
+if ($cur_hour > $hour_sun_s || $cur_hour < $hour_sun_r) {
+  $cur_dayornight = "n";
+} else {
+  $cur_dayornight = "d";
+}
+
+open(F1,">$home/webfrontend/html/plugins/$psubfolder/webpage.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/webpage.html";
+open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html";
+while (<F>) {
+  $_ =~ s/<!--\$(.*?)-->/${$1}/g;
+  print F1 $_;
+}
+close(F);
+close(F1);
+
+#############################################
 # MAP VIEW
 #############################################
 
@@ -817,101 +912,6 @@ open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html") || d
     $_ =~ s/<!--\$(.*?)-->/${$1}/g;
     print F1 $_;
   }
-close(F);
-close(F1);
-
-#############################################
-# CURRENT CONDITIONS
-#############################################
-
-# Get current weather data from database
-open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
-  our $curdata = <F>;
-close(F);
-
-chomp $curdata;
-
-my @fields = split(/\|/,$curdata);
-
-$cur_date = @fields[0];
-$cur_date_des = @fields[1];
-$cur_date_tz_des_sh = @fields[2];
-$cur_date_tz_des = @fields[3];
-$cur_date_tz = @fields[4];
-
-our $epochdate = DateTime->from_epoch(
-      epoch      => @fields[0],
-      time_zone => 'local',
-);
-
-$cur_day        = sprintf("%02d", $epochdate->day);
-$cur_month      = sprintf("%02d", $epochdate->month);
-$cur_hour       = sprintf("%02d", $epochdate->hour);
-$cur_min        = sprintf("%02d", $epochdate->minute);
-$cur_year       = $epochdate->year;
-$cur_loc_n      = @fields[5];
-$cur_loc_c      = @fields[6];
-$cur_loc_ccode  = @fields[7];
-$cur_loc_lat    = @fields[8];
-$cur_loc_long   = @fields[9];
-$cur_loc_el     = @fields[10];
-$cur_hu         = @fields[13];
-$cur_w_dirdes   = @fields[14];
-$cur_w_dir      = @fields[15];
-$cur_sr         = @fields[22];
-$cur_uvi        = @fields[24];
-$cur_we_icon    = @fields[27];
-$cur_we_code    = @fields[28];
-$cur_we_des     = @fields[29];
-$cur_moon_p     = @fields[30];
-$cur_moon_a     = @fields[31];
-$cur_moon_ph    = @fields[32];
-$cur_moon_h     = @fields[33];
-
-if (!$metric) {
-$cur_tt         = @fields[11]*1.8+32;
-$cur_tt_fl      = @fields[12]*1.8+32;
-$cur_w_sp       = @fields[16]*0.621371192;
-$cur_w_gu       = @fields[17]*0.621371192;
-$cur_w_ch       = @fields[18]*1.8+32;
-$cur_pr         = @fields[19]*0.0295301;
-$cur_dp         = @fields[20]*1.8+32;
-$cur_vis        = @fields[21]*0.621371192;
-$cur_hi         = @fields[23]*1.8+32;
-$cur_prec_today = @fields[25]*0.0393700787;
-$cur_prec_1hr   = @fields[26]*0.0393700787;
-} else {
-$cur_tt         = @fields[11];
-$cur_tt_fl      = @fields[12];
-$cur_w_sp       = @fields[16];
-$cur_w_gu       = @fields[17];
-$cur_w_ch       = @fields[18];
-$cur_pr         = @fields[19];
-$cur_dp         = @fields[20];
-$cur_vis        = @fields[21];
-$cur_hi         = @fields[23];
-$cur_prec_today = @fields[25];
-$cur_prec_1hr   = @fields[26];
-}
-
-$cur_sun_r = "@fields[34]:@fields[35]";
-$cur_sun_s = "@fields[36]:@fields[37]";
-
-# Use night icons between sunset and sunrise
-$hour_sun_r = @fields[34];
-$hour_sun_s = @fields[36];
-if ($cur_hour > $hour_sun_s || $cur_hour < $hour_sun_r) {
-  $cur_dayornight = "n";
-} else {
-  $cur_dayornight = "d";
-}
-
-open(F1,">$home/webfrontend/html/plugins/$psubfolder/webpage.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/webpage.html";
-open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html";
-while (<F>) {
-  $_ =~ s/<!--\$(.*?)-->/${$1}/g;
-  print F1 $_;
-}
 close(F);
 close(F1);
 

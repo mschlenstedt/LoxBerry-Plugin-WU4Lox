@@ -265,7 +265,6 @@ if ($hfc) {
 
   # Output Theme to Browser
   print "Content-type: text/html\n\n";
-print 
   open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html";
        while (<F>) {
          $_ =~ s/<!--\$(.*?)-->/${$1}/g;
