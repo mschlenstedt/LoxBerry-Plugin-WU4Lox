@@ -40,7 +40,7 @@ our $home = File::HomeDir->my_home;
 our $webpath = "/plugins/$psubfolder";
 
 # Version of this script
-my $version = "3.0.3";
+my $version = "3.0.4";
 
 our $pcfg             = new Config::Simple("$home/config/plugins/$psubfolder/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
@@ -356,7 +356,7 @@ foreach (@dfcdata){
   s/[\n\r]//g;
   my @fields = split(/\|/);
 
-  my $per = @fields[0] - 1;
+  my $per = @fields[0];
 
   # Send values only if we should do so
   my $send = 0;
@@ -369,13 +369,16 @@ foreach (@dfcdata){
     next;
   }
 
+  # DFC: Today is dfc0
+  $per = $per-1;
+
   # Check for empty data
   if (@fields[1] eq "") {
     @fields[1] = 1230764400;
   }
 
   $name = "dfc$per\_per";
-  $value = @fields[0] - 1;
+  $value = $per;
   &send;
 
   $name = "dfc$per\_date";
