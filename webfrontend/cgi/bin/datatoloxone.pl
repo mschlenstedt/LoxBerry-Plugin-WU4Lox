@@ -139,6 +139,8 @@ chomp $curdata;
 my @fields = split(/\|/,$curdata);
 our $value;
 our $name;
+our $tmpudp;
+our $udp;
 
 # Check for empty data
 if (@fields[0] eq "") {
@@ -341,6 +343,7 @@ $value = $sunrdate->epoch() - $dateref->epoch();
 
 $name = "cur_sun_s";
 $value = $sunsdate->epoch() - $dateref->epoch();
+$udp = 1;
 &send;
 
 #
@@ -483,6 +486,7 @@ foreach (@dfcdata){
 
   $name = "dfc$per\_we_code";
   $value = @fields[26];
+  $udp = 1;
   &send;
 
   $name = "dfc$per\_we_des";
@@ -632,6 +636,7 @@ foreach (@hfcdata){
 
   $name = "hfc$per\_we_code";
   $value = @fields[27];
+  $udp = 1;
   &send;
 
   $name = "hfc$per\_we_icon";
@@ -951,6 +956,8 @@ sub send {
 
   # Send by UDP
   if ($sendudp) {
+   $tmpudp .= "$name\@$value; ";
+   if ($udp == 1) {
     for ($i=1;$i<=$miniservers;$i++) {
 
       # Send value
@@ -959,7 +966,7 @@ sub send {
         PeerPort => $udpport,
         PeerAddr => ${miniserverip . "$i"},
       ) or die "<ERROR> Could not create socket: $!\n";
-      $sock->send("$name\@$value") or die "Send error: $!\n";
+      $sock->send($tmpudp) or die "Send error: $!\n";
       if ($verbose) {
         $logmessage = "<OK> $sendqueue: Send OK to " . ${miniservername . "$i"} . ". IP:" . ${miniserverip . "$i"} . " Port:$udpport Value:$name\@$value\n";
         &log;
@@ -967,6 +974,9 @@ sub send {
       $sendqueue++;
 
     }
+    $udp = 0;
+    $tmpudp = "";
+   }
   }
 
   return();
