@@ -104,9 +104,12 @@ open(F,">$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/
   print F "$decoded_json->{current_observation}->{local_tz_long}|";
   print F "$decoded_json->{current_observation}->{local_tz_offset}|";
   $city = $decoded_json->{current_observation}->{observation_location}->{city};
-  $city = Encode::decode("UTF-8", $city);
+  my $test;
+  eval "\$test = decode( 'UTF-8', \$city, Encode::FB_CROAK )";
+  if ( !$@ ) {
+    $city = Encode::decode("UTF-8", $city);
+  }
   print F "$city|";
-  #print F "$decoded_json->{current_observation}->{observation_location}->{city}|";
   print F "$decoded_json->{current_observation}->{display_location}->{state_name}|";
   print F "$decoded_json->{current_observation}->{observation_location}->{country_iso3166}|";
   print F "$decoded_json->{current_observation}->{observation_location}->{latitude}|";
