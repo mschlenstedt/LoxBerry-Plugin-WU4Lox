@@ -36,7 +36,7 @@ use Cwd 'abs_path';
 ##########################################################################
 
 # Version of this script
-$version = "3.0.2";
+$version = "3.0.3";
 
 # Figure out in which subfolder we are installed
 our $psubfolder = abs_path($0);
