@@ -8,3 +8,4 @@ TXT0003=Konnte keine Daten empfangen.
 TXT0004=Der angegebene API-Key scheint ungültig zu sein.
 TXT0005=Kann die angegebene Wetterstation leider nicht finden.
 TXT0006=Alle Einstellungen erfolgreich gespeichert und aktiviert.
+TXT0007=DNSMasq Plugin gefunden! Bitte Dokumentation lesen!

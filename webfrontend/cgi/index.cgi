@@ -93,13 +93,16 @@ our $query;
 our $querystation;
 our $found;
 our $i;
+our $emu;
+our $emuwarning;
+our $checkdnsmasq;
 
 ##########################################################################
 # Read Settings
 ##########################################################################
 
 # Version of this script
-$version = "0.0.8";
+$version = "0.0.9";
 
 # Figure out in which subfolder we are installed
 $psubfolder = abs_path($0);
@@ -211,6 +214,7 @@ sub form {
 	$udpport          = $pcfg->param("SERVER.UDPPORT");
 	$senddfc          = $pcfg->param("SERVER.SENDDFC");
 	$sendhfc          = $pcfg->param("SERVER.SENDHFC");
+	$emu              = $pcfg->param("SERVER.EMU");
 	$theme            = $pcfg->param("WEB.THEME");
 	$iconset          = $pcfg->param("WEB.ICONSET");
 
@@ -312,6 +316,18 @@ sub form {
 	} else {
 	  $selectediconset4 = "selected=selected";
 	}
+	# EMU
+	if ($emu eq "1") {
+	  $selectedemu2 = "selected=selected";
+	} else {
+	  $selectedemu1 = "selected=selected";
+	} 
+
+        # Check for installed DNSMASQ-Plugin
+        $checkdnsmasq = `cat $home/data/system/plugindatabase.dat | grep -c -i DNSmasq`;
+	if ($checkdnsmasq > 0) {
+          $emuwarning = $pphrase->param("TXT0007");
+	}
 
 	print "Content-Type: text/html\n\n";
 	
@@ -327,6 +343,7 @@ sub form {
 	  }
 	close(F);
 	&footer;
+
 	exit;
 
 }
@@ -352,6 +369,7 @@ sub save
 	$wulang     = param('wulang');
 	$metric     = param('metric');
 	$getwudata  = param('getwudata');
+	$emu        = param('emu');
 	$cron       = param('cron');
 	$sendudp    = param('sendudp');
 	$udpport    = param('udpport');
@@ -385,6 +403,7 @@ sub save
 	$wulang     = quotemeta($wulang);
 	$metric     = quotemeta($metric);
 	$getwudata  = quotemeta($getwudata);
+	$emu        = quotemeta($emu);
 	$cron       = quotemeta($cron);
 	$sendudp    = quotemeta($sendudp);
 	$udpport    = quotemeta($udpport);
@@ -460,6 +479,7 @@ sub save
 	$pcfg->param("SERVER.SENDHFC", "$hfc");
 	$pcfg->param("SERVER.SENDUDP", "$sendudp");
 	$pcfg->param("SERVER.UDPPORT", "$udpport");
+	$pcfg->param("SERVER.EMU", "$emu");
 	$pcfg->param("WEB.THEME", "$theme");
 	$pcfg->param("WEB.ICONSET", "$iconset");
 

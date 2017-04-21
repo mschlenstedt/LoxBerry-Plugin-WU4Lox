@@ -39,9 +39,22 @@ ARGV4=$4 # Forth argument is Plugin version
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 #echo "<INFO> Base folder is: $ARGV5"
 
-# Replace real subfolder and scriptname in config file and create subfolder.dat in CGI folder
-#/bin/sed -i "s/REPLACEBYSUBFOLDER/$ARGV3/" $ARGV5/config/plugins/$ARGV3/miniserverbackup.cfg
-#/bin/sed -i "s/REPLACEBYNAME/$ARGV2/" $ARGV5/config/plugins/$ARGV3/miniserverbackup.cfg
+# Replace real subfolder and scriptname in config files
+echo "<INFO> Replacing VARS with real pathes in $ARGV5/config/plugins/$ARGV3/wu4lox.cfg"
+/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
+/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
+
+echo "<INFO> Replacing VARS with real pathes in $ARGV5/config/plugins/$ARGV3/apache2.conf"
+/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#" $ARGV5/config/plugins/$ARGV3/apache2.conf
+/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#" $ARGV5/config/plugins/$ARGV3/apache2.conf
+
+echo "<INFO> Replacing VARS with real pathes in $ARGV5/system/daemons/plugins/$ARGV3"
+/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#" $ARGV5/system/daemons/plugins/$ARGV3
+/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#" $ARGV5/system/daemons/plugins/$ARGV3
+
+# Copy Apache2 configuration for WU4Lox
+echo "<INFO> Installing Apache2 configuration for WU4Lox"
+cp $ARGV5/config/plugins/$ARGV3/apache2.conf $ARGV5/system/apache2/sites-available/001-$ARGV3.conf > /dev/null 2>&1
 
 # Exit with Status 0
 exit 0

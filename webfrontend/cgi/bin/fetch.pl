@@ -36,7 +36,7 @@ use Cwd 'abs_path';
 ##########################################################################
 
 # Version of this script
-$version = "3.0.3";
+$version = "3.0.4";
 
 # Figure out in which subfolder we are installed
 our $psubfolder = abs_path($0);
@@ -68,7 +68,7 @@ my $logmessage = "<INFO> Starting $0 Version $version";
 &log;
 
 # Get data from Wunderground Server (API request) for current conditions
-my $wgqueryurlcr = "$wuurl\/$wuapikey\/conditions\/astronomy\/forecast\/hourly\/pws:1\/lang:$wulang\/q\/$stationid\.json";
+my $wgqueryurlcr = "$wuurl\/$wuapikey\/conditions\/astronomy\/forecast\/hourly10day\/pws:1\/lang:$wulang\/q\/$stationid\.json";
 
 $logmessage = "<INFO> Fetching Data for $stationid";
 &log;
