@@ -40,7 +40,7 @@ our $home = File::HomeDir->my_home;
 our $webpath = "/plugins/$psubfolder";
 
 # Version of this script
-my $version = "3.0.4";
+my $version = "4.0.0";
 
 our $pcfg             = new Config::Simple("$home/config/plugins/$psubfolder/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
@@ -48,6 +48,7 @@ my  $senddfc          = $pcfg->param("SERVER.SENDDFC");
 my  $sendhfc          = $pcfg->param("SERVER.SENDHFC");
 our $sendudp          = $pcfg->param("SERVER.SENDUDP");
 our $metric           = $pcfg->param("SERVER.METRIC");
+our $emu              = $pcfg->param("SERVER.EMU");
 our $stdtheme         = $pcfg->param("WEB.THEME");
 our $stdiconset       = $pcfg->param("WEB.ICONSET");
 
@@ -67,6 +68,8 @@ GetOptions ('verbose' => \$verbose,
 ##########################################################################
 # Main program
 ##########################################################################
+
+my $i;
 
 # Starting...
 my $logmessage = "<INFO> Starting $0 Version $version\n";
@@ -139,6 +142,8 @@ chomp $curdata;
 my @fields = split(/\|/,$curdata);
 our $value;
 our $name;
+our $tmpudp;
+our $udp;
 
 # Check for empty data
 if (@fields[0] eq "") {
@@ -341,6 +346,7 @@ $value = $sunrdate->epoch() - $dateref->epoch();
 
 $name = "cur_sun_s";
 $value = $sunsdate->epoch() - $dateref->epoch();
+$udp = 1;
 &send;
 
 #
@@ -483,6 +489,7 @@ foreach (@dfcdata){
 
   $name = "dfc$per\_we_code";
   $value = @fields[26];
+  $udp = 1;
   &send;
 
   $name = "dfc$per\_we_des";
@@ -632,6 +639,7 @@ foreach (@hfcdata){
 
   $name = "hfc$per\_we_code";
   $value = @fields[27];
+  $udp = 1;
   &send;
 
   $name = "hfc$per\_we_icon";
@@ -921,6 +929,157 @@ close(F1);
 $logmessage = "<OK> Webpages created successfully.\n";
 &log;
 
+#
+# Create Cloud Weather Emu
+#
+
+# Original from Loxone Testserver: (ccord changed)
+# http://weather.loxone.com:6066/forecast/?user=loxone_EEE000CC000F&coord=13.4,54.0768&format=1&asl=115
+#        ^                  ^                          ^                  ^            ^        ^
+#        URL                Port                       MS MAC             Coord        Format   Height
+#
+# The format could be 1 or 2, although Miniserver only seems to use format=1 
+# (format=2 is xml-output, but with less weather data)
+# The height is the geogr. height of your installation (seems to be used for windspeed etc.). You
+# can give the heights in meter or set this to auto or left blank (=auto).
+
+if ($emu) {
+
+  $logmessage = "<INFO> Creating Files for Cloud Weather Emulator...\n";
+  &log;
+
+  #############################################
+  # CURRENT CONDITIONS
+  #############################################
+
+  # Original file has 169 entrys, but always starts at 0:00 today or 12:00 yesterday. We alsways start with current data
+  # (we don't have historical data) and offer 168 hourly forcast datasets. This seems to be ok for the miniserver.
+
+  # Get current weather data from database
+
+  open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+    $curdata = <F>;
+  close(F);
+
+  chomp $curdata;
+
+  @fields = split(/\|/,$curdata);
+
+  open(F,">$home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt";
+    print F "<mb_metadata>\n";
+    print F "id;name;longitude;latitude;height (m.asl.);country;timezone;utc-timedifference;sunrise;sunset;\n";
+    print F "local date;weekday;local time;temperature(C);feeledTemperature(C);windspeed(km/h);winddirection(degr);wind gust(km/h);low clouds(%);medium clouds(%);high clouds(%);precipitation(mm);probability of Precip(%);snowFraction;sea level pressure(hPa);relative humidity(%);CAPE;picto-code;radiation (W/m2);\n";
+    print F "</mb_metadata><valid_until>2030-12-31</valid_until>\n";
+    print F "<station>\n";
+    print F ";@fields[5];@fields[9];@fields[8];@fields[10];@fields[6];@fields[2];UTC" . substr (@fields[4], 0, 3) . "." . substr (@fields[4], 3, 2);
+    print F ";@fields[34]:@fields[35];@fields[36]:@fields[37];\n"; 
+    print F $epochdate->dmy('.') . ";";
+    print F $epochdate->day_abbr() . ";";
+    printf ( F "%02d",$epochdate->hour() );
+    print F ";";
+    printf ( F "%5.1f", @fields[11]);
+    print F ";";
+    printf ( F "%5.1f", @fields[12]);
+    print F ";";
+    printf ( F "%3d", @fields[16]);
+    print F ";";
+    printf ( F "%3d", @fields[15]);
+    print F ";";
+    printf ( F "%3d", @fields[17]);
+    print F ";";
+    print F "  0;  0;  0;";
+    printf ( F "%5.1f", @fields[26]);
+    print F ";";
+    print F "  0;0.0;";
+    printf ( F "%4d", @fields[19]);
+    print F ";";
+    printf ( F "%3d", @fields[13]);
+    print F ";";
+    print F "     0;";
+    printf ( F "%2d", @fields[28]);
+    print F ";";
+    printf ( F "%4d", @fields[22]);
+    print F ";\n";
+  close(F);
+
+  #############################################
+  # HOURLY FORECAST
+  #############################################
+
+  # Get current weather data from database
+  open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
+    $hfcdata = <F>;
+  close(F);
+
+  # Original file has 169 entrys, but always starts at 0:00 today or 12:00 yesterday. We alsways start with current data
+  # (we don't have historical data) and offer 168 hourly forcast datasets. This seems to be ok for the miniserver.
+
+  $i = 0;
+  my $hfcdate;
+
+  open(F,">>$home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt";
+
+    foreach (@hfcdata) {
+
+      if ( $i >= 168 ) { last; } # Stop after 168 datasets
+
+      #chomp $_;
+
+      @fields = split(/\|/,$_);
+
+      $hfcdate = DateTime->new(
+            year      => @fields[6],
+            month     => @fields[3],
+            day       => @fields[2],
+            hour      => @fields[7],
+            minute    => @fields[8],
+      );
+
+      # "local date;weekday;local time;temperature(C);feeledTemperature(C);windspeed(km/h);winddirection(degr);wind gust(km/h);low clouds(%);medium clouds(%);high clouds(%);precipitation(mm);probability of Precip(%);snowFraction;sea level pressure(hPa);relative humidity(%);CAPE;picto-code;radiation (W/m2);\n";
+      print F $hfcdate->dmy('.') . ";";
+      print F $hfcdate->day_abbr() . ";";
+      printf ( F "%02d",$hfcdate->hour() );
+      print F ";";
+      printf ( F "%5.1f", @fields[11]);
+      print F ";";
+      printf ( F "%5.1f", @fields[12]);
+      print F ";";
+      printf ( F "%3d", @fields[17]);
+      print F ";";
+      printf ( F "%3d", @fields[16]);
+      print F ";";
+      printf ( F "%3d", @fields[17]);
+      print F ";";
+      printf ( F "%3d", @fields[21]);
+      print F ";";
+      printf ( F "%3d", @fields[21]);
+      print F ";";
+      printf ( F "%3d", @fields[21]);
+      print F ";";
+      printf ( F "%5.1f", @fields[24]);
+      print F ";";
+      printf ( F "%3d", @fields[26]);
+      print F ";";
+      print F "0.0;";
+      printf ( F "%4d", @fields[19]);
+      print F ";";
+      printf ( F "%3d", @fields[14]);
+      print F ";";
+      print F "     0;";
+      printf ( F "%2d", @fields[27]);
+      print F ";   0;\n";
+
+      $i++;
+
+    }
+
+    print F "</station>\n";
+
+  close(F);
+
+}
+
+# Finish
 exit;
 
 #
@@ -951,6 +1110,8 @@ sub send {
 
   # Send by UDP
   if ($sendudp) {
+   $tmpudp .= "$name\@$value; ";
+   if ($udp == 1) {
     for ($i=1;$i<=$miniservers;$i++) {
 
       # Send value
@@ -959,7 +1120,7 @@ sub send {
         PeerPort => $udpport,
         PeerAddr => ${miniserverip . "$i"},
       ) or die "<ERROR> Could not create socket: $!\n";
-      $sock->send("$name\@$value") or die "Send error: $!\n";
+      $sock->send($tmpudp) or die "Send error: $!\n";
       if ($verbose) {
         $logmessage = "<OK> $sendqueue: Send OK to " . ${miniservername . "$i"} . ". IP:" . ${miniserverip . "$i"} . " Port:$udpport Value:$name\@$value\n";
         &log;
@@ -967,6 +1128,9 @@ sub send {
       $sendqueue++;
 
     }
+    $udp = 0;
+    $tmpudp = "";
+   }
   }
 
   return();
