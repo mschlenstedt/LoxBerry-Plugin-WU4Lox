@@ -996,7 +996,24 @@ if ($emu) {
     printf ( F "%3d", @fields[13]);
     print F ";";
     print F "     0;";
-    printf ( F "%2d", @fields[28]);
+    # Convert WU Weathercode to Lox Weathercode
+    my $loxweathercode;
+    if (@fields[28] eq "16") {
+      $loxweathercode = "21";
+    } elsif (@fields[28] eq "19") {
+      $loxweathercode = "26";
+    } elsif (@fields[28] eq "12") {
+      $loxweathercode = "10";
+    } elsif (@fields[28] eq "13") {
+      $loxweathercode = "11";
+    } elsif (@fields[28] eq "14") {
+      $loxweathercode = "18";
+    } elsif (@fields[28] eq "15") {
+      $loxweathercode = "18";
+    } else {
+      $loxweathercode = @fields[28];
+    }
+    printf ( F "%2d", $loxweathercode);
     print F ";";
     printf ( F "%4d", @fields[22]);
     print F ";\n";
@@ -1066,7 +1083,41 @@ if ($emu) {
       printf ( F "%3d", @fields[14]);
       print F ";";
       print F "     0;";
-      printf ( F "%2d", @fields[27]);
+      # Convert WU Weathercode to Lox Weathercode
+      if (@fields[27] eq "5") {
+        $loxweathercode = "6";
+      } elsif (@fields[27] eq "7") {
+        $loxweathercode = "2";
+      } elsif (@fields[27] eq "8") {
+        $loxweathercode = "2";
+      } elsif (@fields[27] eq "9") {
+        $loxweathercode = "21";
+      } elsif (@fields[27] eq "10") {
+        $loxweathercode = "16";
+      } elsif (@fields[27] eq "11") {
+        $loxweathercode = "17";
+      } elsif (@fields[27] eq "12") {
+        $loxweathercode = "10";
+      } elsif (@fields[27] eq "13") {
+        $loxweathercode = "11";
+      } elsif (@fields[27] eq "14") {
+        $loxweathercode = "18";
+      } elsif (@fields[27] eq "15") {
+        $loxweathercode = "18";
+      } elsif (@fields[27] eq "16") {
+        $loxweathercode = "21";
+      } elsif (@fields[27] eq "18") {
+        $loxweathercode = "23";
+      } elsif (@fields[27] eq "19") {
+        $loxweathercode = "24";
+      } elsif (@fields[27] eq "23") {
+        $loxweathercode = "22";
+      } elsif (@fields[27] eq "24") {
+        $loxweathercode = "22";
+      else {
+        $loxweathercode = @fields[27];
+      }
+      printf ( F "%2d", $loxweathercode);
       print F ";   0;\n";
 
       $i++;
