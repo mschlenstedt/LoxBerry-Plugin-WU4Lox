@@ -7,6 +7,14 @@
 
 pluginname=$(basename $0 .sh)
 
+# Creating tmp folder and log in /var/run/shm
+mkdir -p /var/run/shm/$pluginname > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log > /dev/null 2>&1
+touch /var/run/shm/$pluginname/wu4lox.log > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/wu4lox.log REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log > /dev/null 2>&1
+chown -R loxberry.loxberry /var/run/shm/$pluginname/
+chown -R loxberry.loxberry REPLACEINSTALLFOLDER/log/plugins/$pluginname > /dev/null 2>&1
+
 if [ -x /usr/bin/logger ]; then
     /usr/bin/logger "loxberry-plugin-$pluginname - DAEMON Script from WU4Lox Plugin"
 fi
@@ -38,6 +46,13 @@ do
 done < $configfile.unix
 # Config file parsing end
 
+# Create databases in /var/run/shm
+if [ -x /usr/bin/logger ]; then 
+	/usr/bin/logger "loxberry-plugin-$pluginname - Creating databases in /var/run/shm"
+fi
+echo "DAEMON: Creating databases in /var/run/shm" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+
+
 # Create sudoers file
 #if [ -x /usr/bin/logger ]; then 
 #	/usr/bin/logger "loxberry-plugin-$pluginname - Adding sudoers permissions"
@@ -68,9 +83,15 @@ then
     if [ $CHECKWLAN -eq 1 ]
     then
       OWNIP=`ifconfig wlan0 | awk '/inet addr/{print substr($2,6)}'`
+      # Fallback to eth0 if wlan0 isn't configured
+      if [ $OWNIP -eq "" ]
+      then
+        OWNIP=`ifconfig eth0 | awk '/inet addr/{print substr($2,6)}'`
+      fi
     else
       OWNIP=`ifconfig eth0 | awk '/inet addr/{print substr($2,6)}'`
     fi
+    echo "DAEMON: My own IP is $OWNIP. Redirect weather.loxone.com to $OWNIP." >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
     echo "address=/weather.loxone.com/$OWNIP" > /etc/dnsmasq.d/$pluginname.conf
     service dnsmasq restart > /dev/null 2>&1
   fi
