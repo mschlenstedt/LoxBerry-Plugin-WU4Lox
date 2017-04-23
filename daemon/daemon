@@ -67,9 +67,9 @@ then
     CHECKWLAN=`ifconfig | grep -c -i wlan0`
     if [ $CHECKWLAN -eq 1 ]
     then
-      OWNIP=`ifconfig wlan0 | awk '/inet addr/{print substr($2,6)}'`
+      OWNIP=`ifconfig wlan0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
     else
-      OWNIP=`ifconfig eth0 | awk '/inet addr/{print substr($2,6)}'`
+      OWNIP=`ifconfig eth0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
     fi
     echo "address=/weather.loxone.com/$OWNIP" > /etc/dnsmasq.d/$pluginname.conf
     service dnsmasq restart > /dev/null 2>&1
