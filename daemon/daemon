@@ -95,8 +95,7 @@ then
     then
       OWNIP=`ifconfig wlan0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
       # Fallback to eth0 if wlan0 isn't configured
-      PING=`ping -c1 $OWNIP`
-      if [ $? -ne 0 ]
+      if [ -z "$OWNIP" ]
       then
         OWNIP=`ifconfig eth0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
       fi
