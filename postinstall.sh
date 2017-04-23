@@ -41,20 +41,37 @@ ARGV5=$5 # Fifth argument is Base folder of LoxBerry
 
 # Replace real subfolder and scriptname in config files
 echo "<INFO> Replacing VARS with real pathes in $ARGV5/config/plugins/$ARGV3/wu4lox.cfg"
-/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
-/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
+/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#g" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
+/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#g" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
 
 echo "<INFO> Replacing VARS with real pathes in $ARGV5/config/plugins/$ARGV3/apache2.conf"
-/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#" $ARGV5/config/plugins/$ARGV3/apache2.conf
-/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#" $ARGV5/config/plugins/$ARGV3/apache2.conf
+/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#g" $ARGV5/config/plugins/$ARGV3/apache2.conf
+/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#g" $ARGV5/config/plugins/$ARGV3/apache2.conf
 
 echo "<INFO> Replacing VARS with real pathes in $ARGV5/system/daemons/plugins/$ARGV3"
-/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#" $ARGV5/system/daemons/plugins/$ARGV3
-/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#" $ARGV5/system/daemons/plugins/$ARGV3
+/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#g" $ARGV5/system/daemons/plugins/$ARGV3
+/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#g" $ARGV5/system/daemons/plugins/$ARGV3
 
 # Copy Apache2 configuration for WU4Lox
 echo "<INFO> Installing Apache2 configuration for WU4Lox"
 cp $ARGV5/config/plugins/$ARGV3/apache2.conf $ARGV5/system/apache2/sites-available/001-$ARGV3.conf > /dev/null 2>&1
+
+# Installing Dummy Data files
+echo "<INFO> Installing Dummy Weather databases"
+mkdir -p /var/run/shm/$ARGV3 > /dev/null 2>&1
+rm $ARGV5/log/plugins/$ARGV3/wu4lox.log > /dev/null 2>&1
+rm $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
+rm $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
+rm $ARGV5/data/plugins/$ARGV3/dailyforecast.dat > /dev/null 2>&1
+touch /var/run/shm/$ARGV3/wu4lox.log > /dev/null 2>&1
+cp $ARGV5/data/plugins/$ARGV3/dummies/* /var/run/shm/$ARGV3 > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/wu4lox.log $ARGV5/log/plugins/$ARGV3/wu4lox.log > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/current.dat $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/hourlyforecast.dat $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/dailyforecast.dat $ARGV5/data/plugins/$ARGV3/dailyforecast.dat > /dev/null 2>&1
+chown -R loxberry.loxberry /var/run/shm/$ARGV3/
+chown -R loxberry.loxberry $ARGV5/log/plugins/$ARGV3 > /dev/null 2>&1
+chown -R loxberry.loxberry $ARGV5/data/plugins/$ARGV3 > /dev/null 2>&1
 
 # Exit with Status 0
 exit 0
