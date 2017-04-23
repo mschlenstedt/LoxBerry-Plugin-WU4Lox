@@ -44,6 +44,7 @@ do
         fi
     fi
 done < $configfile.unix
+rm $configfile.unix > /dev/null 2>&1
 # Config file parsing end
 
 # Create databases in /var/run/shm
@@ -105,11 +106,25 @@ then
 
 else
 
+  if [ -x /usr/bin/logger ]; then
+        /usr/bin/logger "loxberry-plugin-$pluginname - Uninstalling Apache2 and DNSMasq Configuration"
+  fi
+  echo "DAEMON: Uninstalling Apache2 and DNSMasq Configuration" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
   # Remove Configuration Apache2 and DNSMasq
   rm /etc/dnsmasq.d/$pluginname.conf > /dev/null 2>&1
   a2dissite 001-$pluginname > /dev/null 2>&1
   service apache2 restart > /dev/null 2>&1
 
+fi
+
+# Fetch new weather during boot
+if [ $SERVERGETWUDATA -wq 1 ]
+then
+  if [ -x /usr/bin/logger ]; then
+      /usr/bin/logger "loxberry-plugin-$pluginname - Fetching weather data"
+  fi
+  echo "DAEMON: Fetching weather data" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+  REPLACEINSTALLFOLDER/webfrontend/cgi/plugins/$pluginname/bin/fectch.pl -v >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
 fi
 
 exit 0
