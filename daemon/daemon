@@ -14,6 +14,9 @@ rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/current.dat > /dev/null 2>&1
 rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/hourlyforecast.dat > /dev/null 2>&1
 rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/dailyforecast.dat > /dev/null 2>&1
 touch /var/run/shm/$pluginname/wu4lox.log > /dev/null 2>&1
+touch /var/run/shm/$pluginname/current.dat > /dev/null 2>&1
+touch /var/run/shm/$pluginname/hourlyforecast.dat > /dev/null 2>&1
+touch /var/run/shm/$pluginname/dailyforecast.dat > /dev/null 2>&1
 ln -s /var/run/shm/$pluginname/wu4lox.log REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log > /dev/null 2>&1
 ln -s /var/run/shm/$pluginname/current.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/current.dat > /dev/null 2>&1
 ln -s /var/run/shm/$pluginname/hourlyforecast.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/hourlyforecast.dat > /dev/null 2>&1

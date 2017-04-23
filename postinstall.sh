@@ -64,6 +64,7 @@ rm $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
 rm $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
 rm $ARGV5/data/plugins/$ARGV3/dailyforecast.dat > /dev/null 2>&1
 touch /var/run/shm/$ARGV3/wu4lox.log > /dev/null 2>&1
+cp $ARGV5/data/plugins/$ARGV3/dummies/* /var/run/shm/$ARGV3 > /dev/null 2>&1
 ln -s /var/run/shm/$ARGV3/wu4lox.log $ARGV5/log/plugins/$ARGV3/wu4lox.log > /dev/null 2>&1
 ln -s /var/run/shm/$ARGV3/current.dat $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
 ln -s /var/run/shm/$ARGV3/hourlyforecast.dat $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
