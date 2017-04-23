@@ -82,14 +82,14 @@ then
     CHECKWLAN=`ifconfig | grep -c -i wlan0`
     if [ $CHECKWLAN -eq 1 ]
     then
-      OWNIP=`ifconfig wlan0 | awk '/inet addr/{print substr($2,6)}'`
+      OWNIP=`ifconfig wlan0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
       # Fallback to eth0 if wlan0 isn't configured
       if [ $OWNIP -eq "" ]
       then
-        OWNIP=`ifconfig eth0 | awk '/inet addr/{print substr($2,6)}'`
+        OWNIP=`ifconfig eth0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
       fi
     else
-      OWNIP=`ifconfig eth0 | awk '/inet addr/{print substr($2,6)}'`
+      OWNIP=`ifconfig eth0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
     fi
     echo "DAEMON: My own IP is $OWNIP. Redirect weather.loxone.com to $OWNIP." >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
     echo "address=/weather.loxone.com/$OWNIP" > /etc/dnsmasq.d/$pluginname.conf
