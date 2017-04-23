@@ -56,5 +56,21 @@ echo "<INFO> Replacing VARS with real pathes in $ARGV5/system/daemons/plugins/$A
 echo "<INFO> Installing Apache2 configuration for WU4Lox"
 cp $ARGV5/config/plugins/$ARGV3/apache2.conf $ARGV5/system/apache2/sites-available/001-$ARGV3.conf > /dev/null 2>&1
 
+# Installing Dummy Data files
+echo "<INFO> Installing Dummy Weather databases"
+mkdir -p /var/run/shm/$ARGV3 > /dev/null 2>&1
+rm $ARGV5/log/plugins/$ARGV3/wu4lox.log > /dev/null 2>&1
+rm $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
+rm $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
+rm $ARGV5/data/plugins/$ARGV3/dailyforecast.dat > /dev/null 2>&1
+touch /var/run/shm/$ARGV3/wu4lox.log > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/wu4lox.log $ARGV5/log/plugins/$ARGV3/wu4lox.log > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/current.dat $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/hourlyforecast.dat $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
+ln -s /var/run/shm/$ARGV3/dailyforecast.dat $ARGV5/data/plugins/$ARGV3/dailyforecast.dat > /dev/null 2>&1
+chown -R loxberry.loxberry /var/run/shm/$ARGV3/
+chown -R loxberry.loxberry $ARGV5/log/plugins/$ARGV3 > /dev/null 2>&1
+chown -R loxberry.loxberry $ARGV5/data/plugins/$ARGV3 > /dev/null 2>&1
+
 # Exit with Status 0
 exit 0
