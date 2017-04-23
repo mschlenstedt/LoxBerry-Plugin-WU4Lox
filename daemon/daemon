@@ -134,7 +134,7 @@ then
       /usr/bin/logger "loxberry-plugin-$pluginname - Fetching weather data"
   fi
   echo "DAEMON: Fetching weather data" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
-  REPLACEINSTALLFOLDER/webfrontend/cgi/plugins/$pluginname/bin/fectch.pl -v >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+  REPLACEINSTALLFOLDER/webfrontend/cgi/plugins/$pluginname/bin/fetch.pl -v >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
 fi
 
 exit 0
