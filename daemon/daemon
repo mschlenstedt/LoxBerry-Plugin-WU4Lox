@@ -118,7 +118,7 @@ else
 fi
 
 # Fetch new weather during boot
-if [ $SERVERGETWUDATA -wq 1 ]
+if [ $SERVERGETWUDATA -eq 1 ]
 then
   if [ -x /usr/bin/logger ]; then
       /usr/bin/logger "loxberry-plugin-$pluginname - Fetching weather data"
