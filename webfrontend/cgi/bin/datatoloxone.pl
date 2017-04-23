@@ -1114,7 +1114,7 @@ if ($emu) {
         $loxweathercode = "22";
       } elsif (@fields[27] eq "24") {
         $loxweathercode = "22";
-      else {
+      } else {
         $loxweathercode = @fields[27];
       }
       printf ( F "%2d", $loxweathercode);
