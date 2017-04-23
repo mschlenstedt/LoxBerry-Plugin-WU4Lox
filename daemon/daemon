@@ -7,13 +7,20 @@
 
 pluginname=$(basename $0 .sh)
 
-# Creating tmp folder and log in /var/run/shm
+# Creating tmp folder and files in /var/run/shm
 mkdir -p /var/run/shm/$pluginname > /dev/null 2>&1
 rm REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/current.dat > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/hourlyforecast.dat > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/dailyforecast.dat > /dev/null 2>&1
 touch /var/run/shm/$pluginname/wu4lox.log > /dev/null 2>&1
 ln -s /var/run/shm/$pluginname/wu4lox.log REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/current.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/current.dat > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/hourlyforecast.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/hourlyforecast.dat > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/dailyforecast.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/dailyforecast.dat > /dev/null 2>&1
 chown -R loxberry.loxberry /var/run/shm/$pluginname/
 chown -R loxberry.loxberry REPLACEINSTALLFOLDER/log/plugins/$pluginname > /dev/null 2>&1
+chown -R loxberry.loxberry REPLACEINSTALLFOLDER/data/plugins/$pluginname > /dev/null 2>&1
 
 if [ -x /usr/bin/logger ]; then
     /usr/bin/logger "loxberry-plugin-$pluginname - DAEMON Script from WU4Lox Plugin"
