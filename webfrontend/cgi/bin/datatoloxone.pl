@@ -40,7 +40,7 @@ our $home = File::HomeDir->my_home;
 our $webpath = "/plugins/$psubfolder";
 
 # Version of this script
-my $version = "4.0.0";
+my $version = "4.0.1";
 
 our $pcfg             = new Config::Simple("$home/config/plugins/$psubfolder/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
@@ -997,19 +997,104 @@ if ($emu) {
     print F ";";
     print F "     0;";
     # Convert WU Weathercode to Lox Weathercode
+    # WU: https://www.wunderground.com/weather/api/d/docs?d=resources/phrase-glossary 
+    # Lox: https://www.loxone.com/dede/kb/weather-service/ seems not to be right (anymore),
+    # correct Loxone Weather Types are:
+    #  1 - wolkenlos
+    #  2 - heiter 
+    #  3 - heiter
+    #  4 - heiter
+    #  5 - heiter
+    #  6 - heiter
+    #  7 - wolkig
+    #  8 - wolkig
+    #  9 - wolkig
+    # 10 - wolkig
+    # 11 - wolkig
+    # 12 - wolkig
+    # 13 - wolkenlos
+    # 14 - heiter
+    # 15 - heiter
+    # 16 - Nebel
+    # 17 - Nebel
+    # 18 - Nebel
+    # 19 - stark bewölkt
+    # 20 - stark bewölkt
+    # 21 - stark bewölkt
+    # 22 - bedeckt
+    # 23 - Regen
+    # 24 - Schneefall
+    # 25 - starker Regen
+    # 26 - starker Schneefall
+    # 27 - kräftiges Gewitter
+    # 28 - Gewitter
+    # 29 - starker Schneeschauer
+    # 30 - kräftiges Gewitter
+    # 31 - leichter Regenschauer
+    # 32 - leichter Schneeschauer
+    # 33 - leichter Regen
+    # 34 - leichter Schneeschauer
+    # 35 - Schneeregen
     my $loxweathercode;
-    if (@fields[28] eq "16") {
-      $loxweathercode = "21";
-    } elsif (@fields[28] eq "19") {
-      $loxweathercode = "26";
-    } elsif (@fields[28] eq "12") {
+    #if (@fields[28] eq "16") {
+    #  $loxweathercode = "21";
+    #} elsif (@fields[28] eq "19") {
+    #  $loxweathercode = "26";
+    #} elsif (@fields[28] eq "12") {
+    #  $loxweathercode = "10";
+    #} elsif (@fields[28] eq "13") {
+    #  $loxweathercode = "11";
+    #} elsif (@fields[28] eq "14") {
+    #  $loxweathercode = "18";
+    #} elsif (@fields[28] eq "15") {
+    #  $loxweathercode = "18";
+    #} else {
+    #  $loxweathercode = @fields[28];
+    #}
+    if (@fields[28] eq "2") {
+      $loxweathercode = "7";
+    } elsif (@fields[28] eq "3") {
+      $loxweathercode = "8";
+    } elsif (@fields[28] eq "4") {
+      $loxweathercode = "9";
+    } elsif (@fields[28] eq "5") {
       $loxweathercode = "10";
+    } elsif (@fields[28] eq "6") {
+      $loxweathercode = "16";
+    } elsif (@fields[28] eq "7") {
+      $loxweathercode = "7";
+    } elsif (@fields[28] eq "8") {
+      $loxweathercode = "7";
+    } elsif (@fields[28] eq "9") {
+      $loxweathercode = "26";
+    } elsif (@fields[28] eq "10") {
+      $loxweathercode = "33";
+    } elsif (@fields[28] eq "11") {
+      $loxweathercode = "33";
+    } elsif (@fields[28] eq "12") {
+      $loxweathercode = "23";
     } elsif (@fields[28] eq "13") {
-      $loxweathercode = "11";
+      $loxweathercode = "23";
     } elsif (@fields[28] eq "14") {
-      $loxweathercode = "18";
+      $loxweathercode = "28";
     } elsif (@fields[28] eq "15") {
-      $loxweathercode = "18";
+      $loxweathercode = "28";
+    } elsif (@fields[28] eq "16") {
+      $loxweathercode = "26";
+    } elsif (@fields[28] eq "18") {
+      $loxweathercode = "32";
+    } elsif (@fields[28] eq "19") {
+      $loxweathercode = "33";
+    } elsif (@fields[28] eq "20") {
+      $loxweathercode = "24";
+    } elsif (@fields[28] eq "21") {
+      $loxweathercode = "24";
+    } elsif (@fields[28] eq "22") {
+      $loxweathercode = "24";
+    } elsif (@fields[28] eq "23") {
+      $loxweathercode = "24";
+    } elsif (@fields[28] eq "24") {
+      $loxweathercode = "24";
     } else {
       $loxweathercode = @fields[28];
     }

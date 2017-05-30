@@ -36,7 +36,7 @@ use Cwd 'abs_path';
 ##########################################################################
 
 # Version of this script
-$version = "3.0.4";
+$version = "3.0.5";
 
 # Figure out in which subfolder we are installed
 our $psubfolder = abs_path($0);
@@ -296,6 +296,7 @@ open(F,"+<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home
      print F "$_\n";
      next;
    }
+   s/\|null\|/"|0|"/eg;
    s/\|--\|/"|0|"/eg;
    s/\|na\|/"|-9999.00|"/eg;
    s/\|NA\|/"|-9999.00|"/eg;
@@ -315,6 +316,7 @@ open(F,"+<$home/data/plugins/$psubfolder/dailyforecast.dat") || die "Cannot open
      print F "$_\n";
      next;
    }
+   s/\|null\|/"|0|"/eg;
    s/\|--\|/"|0|"/eg;
    s/\|na\|/"|-9999.00|"/eg;
    s/\|NA\|/"|-9999.00|"/eg;
@@ -334,6 +336,7 @@ open(F,"+<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot ope
      print F "$_\n";
      next;
    }
+   s/\|null\|/"|0|"/eg;
    s/\|--\|/"|0|"/eg;
    s/\|na\|/"|-9999.00|"/eg;
    s/\|NA\|/"|-9999.00|"/eg;
