@@ -40,7 +40,7 @@ our $home = File::HomeDir->my_home;
 our $webpath = "/plugins/$psubfolder";
 
 # Version of this script
-my $version = "4.0.2";
+my $version = "4.0.3";
 
 our $pcfg             = new Config::Simple("$home/config/plugins/$psubfolder/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
@@ -346,7 +346,7 @@ $value = $sunrdate->epoch() - $dateref->epoch();
 
 $name = "cur_sun_s";
 $value = $sunsdate->epoch() - $dateref->epoch();
-$udp = 1;
+$udp = 1; # Really send now in one run
 &send;
 
 #
@@ -489,7 +489,7 @@ foreach (@dfcdata){
 
   $name = "dfc$per\_we_code";
   $value = @fields[26];
-  $udp = 1;
+  $udp = 1; # Really send now in one run
   &send;
 
   $name = "dfc$per\_we_des";
@@ -639,7 +639,7 @@ foreach (@hfcdata){
 
   $name = "hfc$per\_we_code";
   $value = @fields[27];
-  $udp = 1;
+  $udp = 1; # Really send now in one run
   &send;
 
   $name = "hfc$per\_we_icon";
@@ -652,6 +652,301 @@ foreach (@hfcdata){
 #  &send;
 
 }
+
+#
+# Print out calculated Forecast values
+#
+
+# Prec within the next hours
+my $tmpprec4 = 0;
+my $tmpprec8 = 0;
+my $tmpprec16 = 0;
+my $tmpprec24 = 0;
+my $tmpprec32 = 0;
+my $tmpprec40 = 0;
+my $tmpprec48 = 0;
+
+# Snow within the next hours
+my $tmpsnow4 = 0;
+my $tmpsnow8 = 0;
+my $tmpsnow16 = 0;
+my $tmpsnow24 = 0;
+my $tmpsnow32 = 0;
+my $tmpsnow40 = 0;
+my $tmpsnow48 = 0;
+
+# Min Temp within the next hours
+my $tmpttmin4 = 0;
+my $tmpttmin8 = 0;
+my $tmpttmin16 = 0;
+my $tmpttmin24 = 0;
+my $tmpttmin32 = 0;
+my $tmpttmin40 = 0;
+my $tmpttmin48 = 0;
+
+# Max Temp within the next hours
+my $tmpttmax4 = 0;
+my $tmpttmax8 = 0;
+my $tmpttmax16 = 0;
+my $tmpttmax24 = 0;
+my $tmpttmax32 = 0;
+my $tmpttmax40 = 0;
+my $tmpttmax48 = 0;
+
+# Min Pop within the next hours
+my $tmppopmin4 = 0;
+my $tmppopmin8 = 0;
+my $tmppopmin16 = 0;
+my $tmppopmin24 = 0;
+my $tmppopmin32 = 0;
+my $tmppopmin40 = 0;
+my $tmppopmin48 = 0;
+
+# Max Pop within the next hours
+my $tmppopmax4 = 0;
+my $tmppopmax8 = 0;
+my $tmppopmax16 = 0;
+my $tmppopmax24 = 0;
+my $tmppopmax32 = 0;
+my $tmppopmax40 = 0;
+my $tmppopmax48 = 0;
+
+foreach (@hfcdata){
+  s/[\n\r]//g;
+  my @fields = split(/\|/);
+
+  # Default values for min/max
+  if ( @fields[0] == 1 ) {
+      $tmpttmax4 = @fields[11];
+      $tmpttmin4 = @fields[11];
+      $tmpttmax8 = @fields[11];
+      $tmpttmin8 = @fields[11];
+      $tmpttmax16 = @fields[11];
+      $tmpttmin16 = @fields[11];
+      $tmpttmax24 = @fields[11];
+      $tmpttmin24 = @fields[11];
+      $tmpttmax32 = @fields[11];
+      $tmpttmin32 = @fields[11];
+      $tmpttmax40 = @fields[11];
+      $tmpttmin40 = @fields[11];
+      $tmpttmax48 = @fields[11];
+      $tmpttmin48 = @fields[11];
+
+      $tmppopmax4 = @fields[26];
+      $tmppopmin4 = @fields[26];
+      $tmppopmax8 = @fields[26];
+      $tmppopmin8 = @fields[26];
+      $tmppopmax16 = @fields[26];
+      $tmppopmin16 = @fields[26];
+      $tmppopmax24 = @fields[26];
+      $tmppopmin24 = @fields[26];
+      $tmppopmax32 = @fields[26];
+      $tmppopmin32 = @fields[26];
+      $tmppopmax40 = @fields[26];
+      $tmppopmin40 = @fields[26];
+      $tmppopmax48 = @fields[26];
+      $tmppopmin48 = @fields[26];
+  }
+  if ( @fields[0] <= 4 ) {
+    $tmpprec4 .+ @fields[24];
+    $tmpsnow4 .+ @fields[25];
+    if ( $tmpttmin4 > @fields[11] ) { $tmpttmin4 = @fields[11]; }
+    if ( $tmpttmax4 < @fields[11] ) { $tmpttmax4 = @fields[11]; }
+    if ( $tmppopmin4 > @fields[26] ) { $tmppopmin4 = @fields[26]; }
+    if ( $tmppopmax4 < @fields[26] ) { $tmppopmax4 = @fields[26]; }
+  } 
+  if ( @fields[0] <= 8 ) {
+    $tmpprec8 .+ @fields[24];
+    $tmpsnow8 .+ @fields[25];
+    if ( $tmpttmin8 > @fields[11] ) { $tmpttmin8 = @fields[11]; }
+    if ( $tmpttmax8 < @fields[11] ) { $tmpttmax8 = @fields[11]; }
+    if ( $tmppopmin8 > @fields[26] ) { $tmppopmin8 = @fields[26]; }
+    if ( $tmppopmax8 < @fields[26] ) { $tmppopmax8 = @fields[26]; }
+  } 
+  if ( @fields[0] <= 16 ) {
+    $tmpprec16 .+ @fields[24];
+    $tmpsnow16 .+ @fields[25];
+    if ( $tmpttmin16 > @fields[11] ) { $tmpttmin16 = @fields[11]; }
+    if ( $tmpttmax16 < @fields[11] ) { $tmpttmax16 = @fields[11]; }
+    if ( $tmppopmin16 > @fields[26] ) { $tmppopmin16 = @fields[26]; }
+    if ( $tmppopmax16 < @fields[26] ) { $tmppopmax16 = @fields[26]; }
+  } 
+  if ( @fields[0] <= 24 ) {
+    $tmpprec24 .+ @fields[24];
+    $tmpsnow24 .+ @fields[25];
+    if ( $tmpttmin24 > @fields[11] ) { $tmpttmin24 = @fields[11]; }
+    if ( $tmpttmax24 < @fields[11] ) { $tmpttmax24 = @fields[11]; }
+    if ( $tmppopmin24 > @fields[26] ) { $tmppopmin24 = @fields[26]; }
+    if ( $tmppopmax24 < @fields[26] ) { $tmppopmax24 = @fields[26]; }
+  } 
+  if ( @fields[0] <= 32 ) {
+    $tmpprec32 .+ @fields[24];
+    $tmpsnow32 .+ @fields[25];
+    if ( $tmpttmin32 > @fields[11] ) { $tmpttmin32 = @fields[11]; }
+    if ( $tmpttmax32 < @fields[11] ) { $tmpttmax32 = @fields[11]; }
+    if ( $tmppopmin32 > @fields[26] ) { $tmppopmin32 = @fields[26]; }
+    if ( $tmppopmax32 < @fields[26] ) { $tmppopmax32 = @fields[26]; }
+  } 
+  if ( @fields[0] <= 40 ) {
+    $tmpprec40 .+ @fields[24];
+    $tmpsnow40 .+ @fields[25];
+    if ( $tmpttmin40 > @fields[11] ) { $tmpttmin40 = @fields[11]; }
+    if ( $tmpttmax40 < @fields[11] ) { $tmpttmax40 = @fields[11]; }
+    if ( $tmppopmin40 > @fields[26] ) { $tmppopmin40 = @fields[26]; }
+    if ( $tmppopmax40 < @fields[26] ) { $tmppopmax40 = @fields[26]; }
+  } 
+  if ( @fields[0] <= 48 ) {
+    $tmpprec48 .+ @fields[24];
+    $tmpsnow48 .+ @fields[25];
+    if ( $tmpttmin48 > @fields[11] ) { $tmpttmin48 = @fields[11]; }
+    if ( $tmpttmax48 < @fields[11] ) { $tmpttmax48 = @fields[11]; }
+    if ( $tmppopmin48 > @fields[26] ) { $tmppopmin48 = @fields[26]; }
+    if ( $tmppopmax48 < @fields[26] ) { $tmppopmax48 = @fields[26]; }
+  } 
+
+}
+
+# Add calculated to send queue
+
+# ttmax
+$name = "calc+4\_ttmax";
+$value = $tmpttmax4;
+&send;
+$name = "calc+8\_ttmax";
+$value = $tmpttmax8;
+&send;
+$name = "calc+16\_ttmax";
+$value = $tmpttmax16;
+&send;
+$name = "calc+24\_ttmax";
+$value = $tmpttmax24;
+&send;
+$name = "calc+32\_ttmax";
+$value = $tmpttmax32;
+&send;
+$name = "calc+40\_ttmax";
+$value = $tmpttmax40;
+&send;
+$name = "calc+48\_ttmax";
+$value = $tmpttmax48;
+&send;
+
+# ttmin
+$name = "calc+4\_ttmin";
+$value = $tmpttmin4;
+&send;
+$name = "calc+8\_ttmin";
+$value = $tmpttmin8;
+&send;
+$name = "calc+16\_ttmin";
+$value = $tmpttmin16;
+&send;
+$name = "calc+24\_ttmin";
+$value = $tmpttmin24;
+&send;
+$name = "calc+32\_ttmin";
+$value = $tmpttmin32;
+&send;
+$name = "calc+40\_ttmin";
+$value = $tmpttmin40;
+&send;
+$name = "calc+48\_ttmin";
+$value = $tmpttmin48;
+&send;
+
+# popmax
+$name = "calc+4\_popmax";
+$value = $tmppopmax4;
+&send;
+$name = "calc+8\_popmax";
+$value = $tmppopmax8;
+&send;
+$name = "calc+16\_popmax";
+$value = $tmppopmax16;
+&send;
+$name = "calc+24\_popmax";
+$value = $tmppopmax24;
+&send;
+$name = "calc+32\_popmax";
+$value = $tmppopmax32;
+&send;
+$name = "calc+40\_popmax";
+$value = $tmppopmax40;
+&send;
+$name = "calc+48\_popmax";
+$value = $tmppopmax48;
+&send;
+
+# popmin
+$name = "calc+4\_popmin";
+$value = $tmppopmin4;
+&send;
+$name = "calc+8\_popmin";
+$value = $tmppopmin8;
+&send;
+$name = "calc+16\_popmin";
+$value = $tmppopmin16;
+&send;
+$name = "calc+24\_popmin";
+$value = $tmppopmin24;
+&send;
+$name = "calc+32\_popmin";
+$value = $tmppopmin32;
+&send;
+$name = "calc+40\_popmin";
+$value = $tmppopmin40;
+&send;
+$name = "calc+48\_popmin";
+$value = $tmppopmin48;
+&send;
+
+# prec
+$name = "calc+4\_prec";
+$value = $tmpprec4;
+&send;
+$name = "calc+8\_prec";
+$value = $tmpprec8;
+&send;
+$name = "calc+16\_prec";
+$value = $tmpprec16;
+&send;
+$name = "calc+24\_prec";
+$value = $tmpprec24;
+&send;
+$name = "calc+32\_prec";
+$value = $tmpprec32;
+&send;
+$name = "calc+40\_prec";
+$value = $tmpprec40;
+&send;
+$name = "calc+48\_prec";
+$value = $tmpprec48;
+&send;
+
+# snow
+$name = "calc+4\_snow";
+$value = $tmpsnow4;
+&send;
+$name = "calc+8\_snow";
+$value = $tmpsnow8;
+&send;
+$name = "calc+16\_snow";
+$value = $tmpsnow16;
+&send;
+$name = "calc+24\_snow";
+$value = $tmpsnow24;
+&send;
+$name = "calc+32\_snow";
+$value = $tmpsnow32;
+&send;
+$name = "calc+40\_snow";
+$value = $tmpsnow40;
+&send;
+$name = "calc+48\_snow";
+$value = $tmpsnow48;
+&send;
+
+$udp = 1; # Really send now in one run
 
 #
 # Create Webpages
