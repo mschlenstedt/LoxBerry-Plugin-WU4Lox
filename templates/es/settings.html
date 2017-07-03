@@ -1,0 +1,528 @@
+									<form method="post" data-ajax="false" name="main_form" id="main_form" action="./index.cgi">
+										<input type="hidden" name="saveformdata" value="1">
+											<div class="form-group">
+												<table class="formtable" border="0" width="100%" cellpadding="10">
+													<tr>
+														<td colspan=3 width="75%" valign="middle">
+														<h2>Ajustes de Wunderground&reg;</h2>
+														</td>
+														<td align="right">
+														<a href="http://www.wunderground.com" target="_blank"><img src="/plugins/<!--$psubfolder-->/images/wundergroundLogo_4c_horz_200.png"></a>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelapikey">Clave API Wunderground:</label>
+														</td>
+														<td width="50%">
+															<input id="apikey" name="apikey" type="text" data-validation="alphanumeric" class="textfield" value="<!--$wuapikey-->" 
+																data-validation-error-msg="* La clave API que Wunderground consta sólo de números o letras sin caracteres especiales.">
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+														<font size="-1"><a id="linkwundermap" href="https://www.wunderground.com/weather/api" target="_blank">Crear Clave API Gratuita</a></font>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelstationtyp">Seleccione la estación meteorologica:</label>
+														</td>
+														<td width="50%">
+															<fieldset data-role="controlgroup" data-type="horizontal">
+															<input onclick="disable()" type="radio" name="stationtyp" id="stationtypstatid" value="statid" <!--$selectedstationtyp1-->>
+															<label for="stationtypstatid">ID de Estación</label>
+															<input onclick="disable()" type="radio" name="stationtyp" id="stationtypcoord" value="coord" <!--$selectedstationtyp2-->>
+															<label for="stationtypcoord">Coordenadas</label>
+															<input onclick="disable()" type="radio" name="stationtyp" id="stationtypautoip" value="autoip" <!--$selectedstationtyp3-->>
+															<label for="stationtypautoip">Dirección IP</label>
+															</fieldset>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelstationid">ID de Estación</label>
+														</td>
+														<td width="50%">
+															<input id="stationid" name="stationid" type="text" data-validation="alphanumeric" class="textfield" value="<!--$stationid-->" 
+																data-validation-allowing=":,." data-validation-optional="true" 
+                data-validation-error-msg="* La identificación de la estación consta sólo de números o letras sin caracteres especiales.">
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+														<font size="-1"><a id="linkwundermap" href="https://www.wunderground.com/wundermap/" target="_blank">Buscar en el WunderMap&reg;</a></font>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%" valign="top">
+															<br><label id="labelcoord">Coordenadas Geográficas:</label>
+														</td>
+														<td width="50%">
+															<table border=0 width="100%">
+															<tr>
+															<td>
+															<label id="labelcoordlat">Latitud:</label>
+															</td>
+															<td>
+															<input id="coordlat" name="coordlat" type="text" data-validation="number" class="textfield" value="<!--$coordlat-->" 
+																data-validation-allowing="range[-90;90],float" data-validation-optional="true"
+																data-validation-error-msg="* Por favor, introduzca una latitud válida entre -90 y +90 grados.">
+															</td>
+															<td>
+															<label id="labelcoordlong">Longitud:</label>
+															</td>
+															<td>
+															<input id="coordlong" name="coordlong" type="text" data-validation="number" class="textfield" value="<!--$coordlong-->" 
+																data-validation-allowing="range[-180;180],float" data-validation-optional="true"
+																data-validation-error-msg="* Por favor, introduzca una longitud válida entre -180 y +180 grados.">
+															</td>
+															</tr>
+															</table>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															<a id="coordaddresssearch" data-role="button" data-inline="true" data-mini="true" href="#"
+															data-role="button" id="btnlistnetworks" data-inline="true" data-mini="true"
+															onClick="window.open('/admin/plugins/<!--$psubfolder-->/geolocation.cgi',
+															'NewWindow2','scrollbars=true,toolbar=no,location=no,directories=no,status=no,menubar=no,copyhistory=no,width=900,height=600')">
+															<font size="-1">Buscar Dirección con Google Maps</font>
+															</a>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelwulang">Idioma:</label>
+														</td>
+														<td width="50%">
+															<select id="wulang" name="wulang" data-mini="true" data-native-menu="false">
+																<option value="SP" <!--$selectedwulang1-->>Español</option>
+																<option value="DL" <!--$selectedwulang2-->>Deutsch</option>
+																<option value="EN" <!--$selectedwulang3-->>Englisch</option>
+															</select>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelmetric">Unidades:</label>
+														</td>
+														<td width="50%">
+															<select id="metric" name="metric" data-mini="true" data-native-menu="false">
+																<option value="1" <!--$selectedmetric1-->>Métricas</option>
+																<option value="0" <!--$selectedmetric2-->>Inglés/option>
+															</select>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelauto">Obtener información sobre el clima:</label>
+														</td>
+														<td width="50%">
+															<table border=0 width="100%">
+															<tr>
+															<td width="20%">
+															<fieldset>
+																<select onclick="disable()" id="getwudata" name="getwudata" data-role="flipswitch">
+																	<option <!--$selectedgetwudata1--> value="0">Off</option>
+																	<option <!--$selectedgetwudata2--> value="1">On</option>
+																</select>
+															</fieldset>
+															</td>
+															<td>
+															<select id="cron" name="cron" data-mini="true" data-native-menu="false">
+																<option value="1" <!--$selectedcron1-->>Cada Minuto</option>
+																<option value="3" <!--$selectedcron2-->>Cada 3 Minutos</option>
+																<option value="5" <!--$selectedcron3-->>Cada 5 Minutos</option>
+																<option value="10" <!--$selectedcron4-->>Cada 10 Minutos</option>
+																<option value="15" <!--$selectedcron5-->>Cada 15 Minutos</option>
+																<option value="30" <!--$selectedcron6-->>Cada 30 Minutos</option>
+																<option value="60" <!--$selectedcron7-->>Cada Hora</option>
+															</select>
+															</td>
+															</tr>
+															</table>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															<font size="-1">Para actualizar cada minuto es necesario una cuenta avanzada en Wunderground®</font>
+														</td>
+													</tr>
+													<tr>
+														<td colspan=4>
+														&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td colspan=3 width="75%" valign="middle">
+														<h2>Conexión al Miniserver</h2>
+														</td>
+														<td align="right">
+														&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelsendudp">Por mensajes UDP:</label>
+														</td>
+														<td width="50%">
+															<table border=0 width="100%">
+															<tr>
+															<td width="20%">
+															<fieldset>
+																<select id="sendudp" name="sendudp" data-role="flipswitch">
+																	<option <!--$selectedsendudp1--> value="0">Off</option>
+																	<option <!--$selectedsendudp2--> value="1">On</option>
+																</select>
+															</fieldset>
+															</td>
+															<td>
+															<table border=0 width="100%">
+															<tr>
+															<td>
+															<label id="labeludpport">Puerto UDP:</label>
+															</td>
+															<td>
+															<input id="udpport" name="udpport" type="text" data-validation="number" class="textfield" value="<!--$udpport-->" 
+																data-validation-allowing="range[1;65000]"
+																data-validation-error-msg="* Por favor, introduzca puerto valido del 1 al 65000">
+															</td>
+															</tr>
+															</table>
+															</td>
+															</tr>
+															</table>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															<font size="-1">Los datos meteorológicos se leeran en el Miniserver por un puerto UPD Virtual.</font>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelsendhtml">Por HTML:</label>
+														</td>
+														<td width="50%">
+														<fieldset>
+															 <select id="sendhtml" name="sendhtml" data-role="flipswitch" disabled=disabled>
+																<option value="0">Off</option>
+																<option selected=selected value="1">On</option>
+																</select>
+														</fieldset>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															<font size="-1">Los datos meteorológicos se leeran en el Miniserver por una entrada virtual HTML automáticamente.</font>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labeldfc">Pronóstico de Días:</label>
+														</td>
+														<td width="50%">
+														<div data-role="collapsible">
+														<h4>Seleccione Opciones</h4>
+														<fieldset data-role="controlgroup">
+														<input <!--$selecteddfc1--> type="checkbox" name="dfc1" id="dfc1">
+														<label for="dfc1">Hoy</label>
+														<input <!--$selecteddfc2--> type="checkbox" name="dfc2" id="dfc2">
+														<label for="dfc2">+1 Día</label>
+														<input <!--$selecteddfc3--> type="checkbox" name="dfc3" id="dfc3">
+														<label for="dfc3">+2 Días</label>
+														<input <!--$selecteddfc4--> type="checkbox" name="dfc4" id="dfc4">
+														<label for="dfc4">+3 Días</label>
+														</fieldset>
+														</div>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+														<font size="-1">Elegir sólo las fechas necesarías, una gran cantidad de datos podría sobrecargar el Miniserver.</font>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelhfc">Pronóstico de Horas:</label>
+														</td>
+														<td width="50%">
+														<div data-role="collapsible">
+														<h4>Seleccione Opciones</h4>
+														<fieldset data-role="controlgroup">
+														<input <!--$selectedhfc1--> type="checkbox" name="hfc1" id="hfc1">
+														<label for="hfc1">+1 Hora</label>
+														<input <!--$selectedhfc2--> type="checkbox" name="hfc2" id="hfc2">
+														<label for="hfc2">+2 Horas</label>
+														<input <!--$selectedhfc3--> type="checkbox" name="hfc3" id="hfc3">
+														<label for="hfc3">+3 Horas</label>
+														<input <!--$selectedhfc4--> type="checkbox" name="hfc4" id="hfc4">
+														<label for="hfc4">+4 Horas</label>
+														<input <!--$selectedhfc5--> type="checkbox" name="hfc5" id="hfc5">
+														<label for="hfc5">+5 Horas</label>
+														<input <!--$selectedhfc6--> type="checkbox" name="hfc6" id="hfc6">
+														<label for="hfc6">+6 Horas</label>
+														<input <!--$selectedhfc7--> type="checkbox" name="hfc7" id="hfc7">
+														<label for="hfc7">+7 Horas</label>
+														<input <!--$selectedhfc8--> type="checkbox" name="hfc8" id="hfc8">
+														<label for="hfc8">+8 Horas</label>
+														<input <!--$selectedhfc9--> type="checkbox" name="hfc9" id="hfc9">
+														<label for="hfc9">+9 Horas</label>
+														<input <!--$selectedhfc10--> type="checkbox" name="hfc10" id="hfc10">
+														<label for="hfc10">+10 Horas</label>
+														<input <!--$selectedhfc11--> type="checkbox" name="hfc11" id="hfc11">
+														<label for="hfc11">+11 Horas</label>
+														<input <!--$selectedhfc12--> type="checkbox" name="hfc12" id="hfc12">
+														<label for="hfc12">+12 Horas</label>
+														<input <!--$selectedhfc13--> type="checkbox" name="hfc13" id="hfc13">
+														<label for="hfc13">+13 Horas</label>
+														<input <!--$selectedhfc14--> type="checkbox" name="hfc14" id="hfc14">
+														<label for="hfc14">+14 Horas</label>
+														<input <!--$selectedhfc15--> type="checkbox" name="hfc15" id="hfc15">
+														<label for="hfc15">+15 Horas</label>
+														<input <!--$selectedhfc16--> type="checkbox" name="hfc16" id="hfc16">
+														<label for="hfc16">+16 Horas</label>
+														<input <!--$selectedhfc17--> type="checkbox" name="hfc17" id="hfc17">
+														<label for="hfc17">+17 Horas</label>
+														<input <!--$selectedhfc18--> type="checkbox" name="hfc18" id="hfc18">
+														<label for="hfc18">+18 Horas</label>
+														<input <!--$selectedhfc19--> type="checkbox" name="hfc19" id="hfc19">
+														<label for="hfc19">+19 Horas</label>
+														<input <!--$selectedhfc20--> type="checkbox" name="hfc20" id="hfc20">
+														<label for="hfc20">+20 Horas</label>
+														<input <!--$selectedhfc21--> type="checkbox" name="hfc21" id="hfc21">
+														<label for="hfc21">+21 Horas</label>
+														<input <!--$selectedhfc22--> type="checkbox" name="hfc22" id="hfc22">
+														<label for="hfc22">+22 Horas</label>
+														<input <!--$selectedhfc23--> type="checkbox" name="hfc23" id="hfc23">
+														<label for="hfc23">+23 Horas</label>
+														<input <!--$selectedhfc24--> type="checkbox" name="hfc24" id="hfc24">
+														<label for="hfc24">+24 Horas</label>
+														<input <!--$selectedhfc25--> type="checkbox" name="hfc25" id="hfc25">
+														<label for="hfc25">+25 Horas</label>
+														<input <!--$selectedhfc26--> type="checkbox" name="hfc26" id="hfc26">
+														<label for="hfc26">+26 Horas</label>
+														<input <!--$selectedhfc27--> type="checkbox" name="hfc27" id="hfc27">
+														<label for="hfc27">+27 Horas</label>
+														<input <!--$selectedhfc28--> type="checkbox" name="hfc28" id="hfc28">
+														<label for="hfc28">+28 Horas</label>
+														<input <!--$selectedhfc29--> type="checkbox" name="hfc29" id="hfc29">
+														<label for="hfc29">+29 Horas</label>
+														<input <!--$selectedhfc30--> type="checkbox" name="hfc30" id="hfc30">
+														<label for="hfc30">+30 Horas</label>
+														<input <!--$selectedhfc31--> type="checkbox" name="hfc31" id="hfc31">
+														<label for="hfc31">+31 Horas</label>
+														<input <!--$selectedhfc32--> type="checkbox" name="hfc32" id="hfc32">
+														<label for="hfc32">+32 Horas</label>
+														<input <!--$selectedhfc33--> type="checkbox" name="hfc33" id="hfc33">
+														<label for="hfc33">+33 Horas</label>
+														<input <!--$selectedhfc34--> type="checkbox" name="hfc34" id="hfc34">
+														<label for="hfc34">+34 Horas</label>
+														<input <!--$selectedhfc35--> type="checkbox" name="hfc35" id="hfc35">
+														<label for="hfc35">+35 Horas</label>
+														<input <!--$selectedhfc36--> type="checkbox" name="hfc36" id="hfc36">
+														<label for="hfc36">+36 Horas</label>
+														</fieldset>
+														</div>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+														<font size="-1">Elegir sólo las fechas necesarías, una gran cantidad de datos podría sobrecargar el Miniserver.</font>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labelemu">Emulador de Servicio Meterológico:</label>
+														</td>
+														<td width="50%">
+															<table border=0 width="100%">
+															<tr>
+															<td width="20%">
+															<fieldset>
+																<select id="emu" name="emu" data-role="flipswitch">
+																	<option <!--$selectedemu1--> value="0">Off</option>
+																	<option <!--$selectedemu2--> value="1">On</option>
+																</select>
+															</fieldset>
+															</td>
+															<td>
+															<font color="red"><bold><!--$emuwarning--></bold></font>
+															</td>
+															</tr>
+															</table>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+															<font size="-1">Activa el emulador del servicio meteorológico. Lea la documentación! Configurar tras su instalación y reniciar LoxBerry!</font>
+														</td>
+													</tr>
+													<tr>
+														<td colspan=4>
+														&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td colspan=3 width="75%" valign="middle">
+														<h2>Aspecto de los bloques Webs</h2>
+														</td>
+														<td align="right">
+														&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labeltheme">Temas:</label>
+														</td>
+														<td width="50%">
+															<select id="theme" name="theme" data-mini="true" data-native-menu="false">
+																<option value="classic" <!--$selectedtheme1-->>Clasico</option>
+																<option value="appv4" <!--$selectedtheme2-->>App V4</option>
+																<option value="custom" <!--$selectedtheme3-->>Personalizado</option>
+															</select>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+														<a href="#" data-role="button" id="preview1" data-inline="true" data-mini="true" onClick="preview();">
+														<font size="-1">Vista Previa</font>
+														</a>
+														</td>
+													</tr>
+													<tr>
+														<td width="25%">
+															<label id="labeliconset">Iconos:</label>
+														</td>
+														<td width="50%">
+															<select id="iconset" name="iconset" data-mini="true" data-native-menu="false">
+																<option value="color" <!--$selectediconset1-->>Color</option>
+																<option value="flat" <!--$selectediconset2-->>Plano</option>
+																<option value="dark" <!--$selectediconset3-->>Oscuro</option>
+																<option value="light" <!--$selectediconset4-->>Claro</option>
+																<option value="green" <!--$selectediconset5-->>Verde</option>
+																<option value="silver" <!--$selectediconset6-->>Plateado</option>
+																<option value="realistic" <!--$selectediconset7-->>Realista</option>
+																<option value="custom" <!--$selectediconset8-->>Personalizado</option>
+															</select>
+														</td>
+														<td width="5%" valign="middle">
+															&nbsp;
+														</td>
+														<td width="20%">
+														<a href="#" data-role="button" id="preview2" data-inline="true" data-mini="true" onClick="preview();">
+														<font size="-1">Vista Previa</font>
+														</a>
+														</td>
+													</tr>
+													<tr>
+														<td colspan=4>
+														&nbsp;
+														</td>
+													</tr>
+													<tr>
+														<td></td>
+														<td colspan=3>
+														<div id="form-error-message" class="form-error-message"></div>
+													</td>
+												</tr>
+											</table>
+										</div>
+									<p>
+										&nbsp;
+									</p>
+									<p>
+										<center>
+											<a id="btncancel" data-role="button" data-inline="true" data-mini="true" data-icon="delete" href="/admin/index.cgi">Cancelar</a>
+												<button type="submit" form="main_form" id="btnsubmit" data-role="button" data-inline="true" data-mini="true" data-icon="check">Guardar</button>
+										</center>
+									</form>
+									</p>
+                  <script>
+                    var $messages = $('#form-error-message');
+                    $.validate({
+                      modules : 'security',
+                      scrollToTopOnError : true,
+                      errorMessagePosition : $messages,
+                    });
+
+																				// Preview Link for theme and iconset
+																				function preview() {
+																				url = './show.cgi?theme=' + $('#theme').val() + '&iconset=' + $('#iconset').val();
+																				window.open(url, 'NewWindow');
+																				}
+
+                    // Disable some options on Load depending on selected value
+                    disable();
+
+                    // Disable some options on click depending on selected value
+                    function disable() {
+                      // Station ID
+                      if ( document.main_form.stationtypstatid.checked == true ) {
+                        $('#linkwundermap').removeClass('ui-disabled');
+                        $('#labelstationid').removeClass('ui-disabled');
+                        $('#stationid').removeClass('ui-disabled');
+                        $('#labelcoord').addClass('ui-disabled');
+                        $('#labelcoordlat').addClass('ui-disabled');
+                        $('#labelcoordlong').addClass('ui-disabled');
+                        $('#coordlat').addClass('ui-disabled');
+                        $('#coordlong').addClass('ui-disabled');
+                        $('#coordaddresssearch').addClass('ui-disabled');
+                        $('#coordminiserver').addClass('ui-disabled');
+                        $('#stationid').removeClass('ui-disabled');
+                      }
+                      if ( document.main_form.stationtypcoord.checked == true ) {
+                        $('#linkwundermap').addClass('ui-disabled');
+                        $('#labelstationid').addClass('ui-disabled');
+                        $('#labelcoord').removeClass('ui-disabled');
+                        $('#labelcoordlat').removeClass('ui-disabled');
+                        $('#labelcoordlong').removeClass('ui-disabled');
+                        $('#coordlat').removeClass('ui-disabled');
+                        $('#coordlong').removeClass('ui-disabled');
+                        $('#coordaddresssearch').removeClass('ui-disabled');
+                        $('#coordminiserver').removeClass('ui-disabled');
+                        $('#stationid').addClass('ui-disabled');
+                      }
+                      if ( document.main_form.stationtypautoip.checked == true ) {
+                        $('#linkwundermap').addClass('ui-disabled');
+                        $('#labelstationid').addClass('ui-disabled');
+                        $('#stationid').addClass('ui-disabled');
+                        $('#labelcoord').addClass('ui-disabled');
+                        $('#labelcoordlat').addClass('ui-disabled');
+                        $('#labelcoordlong').addClass('ui-disabled');
+                        $('#coordlat').addClass('ui-disabled');
+                        $('#coordlong').addClass('ui-disabled');
+                        $('#coordaddresssearch').addClass('ui-disabled');
+                        $('#coordminiserver').addClass('ui-disabled');
+                      }
+                    }
+                  </script>
