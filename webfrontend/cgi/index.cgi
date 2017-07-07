@@ -137,15 +137,15 @@ if ( !$query{'saveformdata'} ) {
 } else { 
 	$saveformdata = quotemeta($query{'saveformdata'}); 
 }
-if ( !$query{'lang'} ) {
-	if ( param('lang') ) {
-		$lang = quotemeta(param('lang'));
-	} else {
-		$lang = "de";
-	}
-} else {
-	$lang = quotemeta($query{'lang'}); 
-}
+#if ( !$query{'lang'} ) {
+#	if ( param('lang') ) {
+#		$lang = quotemeta(param('lang'));
+#	} else {
+#		$lang = "de";
+#	}
+#} else {
+#	$lang = quotemeta($query{'lang'}); 
+#}
 if ( !$query{'do'} ) { 
 	if ( param('do')) {
 		$do = quotemeta(param('do'));

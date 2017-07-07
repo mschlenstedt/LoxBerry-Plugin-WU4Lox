@@ -1,0 +1,11 @@
+;
+; Language phrases ES
+;
+TXT0000=LoxBerry
+TXT0001=Wunderground4Loxone
+TXT0002=No se pudo encontrar.
+TXT0003=No se puede recibir datos.
+TXT0004=La clave API parece no ser válida.
+TXT0005=No se pudo encontrar la estación meteorológica especificada.
+TXT0006=Todos los ajustes han sido correctamente guardados y aplicados.
+TXT0007=Plugin DNSMasq encontrado! Lea la documentación!
