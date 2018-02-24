@@ -1,0 +1,142 @@
+#!/bin/bash
+
+# Will be executed as user "root".
+
+# Name this file "daemon.sh" in your plugin-archive. It will be renamed to NAME
+# during installation
+
+pluginname=$(basename $0 .sh)
+
+# Creating tmp folder and files in /var/run/shm
+mkdir -p /var/run/shm/$pluginname > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/current.dat > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/hourlyforecast.dat > /dev/null 2>&1
+rm REPLACEINSTALLFOLDER/data/plugins/$pluginname/dailyforecast.dat > /dev/null 2>&1
+touch /var/run/shm/$pluginname/wu4lox.log > /dev/null 2>&1
+touch /var/run/shm/$pluginname/current.dat > /dev/null 2>&1
+touch /var/run/shm/$pluginname/hourlyforecast.dat > /dev/null 2>&1
+touch /var/run/shm/$pluginname/dailyforecast.dat > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/wu4lox.log REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/current.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/current.dat > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/hourlyforecast.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/hourlyforecast.dat > /dev/null 2>&1
+ln -s /var/run/shm/$pluginname/dailyforecast.dat REPLACEINSTALLFOLDER/data/plugins/$pluginname/dailyforecast.dat > /dev/null 2>&1
+chown -R loxberry.loxberry /var/run/shm/$pluginname/
+chown -R loxberry.loxberry REPLACEINSTALLFOLDER/log/plugins/$pluginname > /dev/null 2>&1
+chown -R loxberry.loxberry REPLACEINSTALLFOLDER/data/plugins/$pluginname > /dev/null 2>&1
+
+if [ -x /usr/bin/logger ]; then
+    /usr/bin/logger "loxberry-plugin-$pluginname - DAEMON Script from WU4Lox Plugin"
+fi
+echo "DAEMON: Starting DAEMON script" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+
+# Config file parsing (based on http://stackoverflow.com/a/20815951/3466839)
+shopt -s extglob
+configfile="REPLACEINSTALLFOLDER/config/plugins/$pluginname/wu4lox.cfg" # set the actual path name of your (DOS or Unix) config file
+tr -d '\r' < $configfile > $configfile.unix
+while IFS='= ' read lhs rhs
+do
+    if [[ ! $lhs =~ ^\ *# && -n $lhs ]]; then
+        rhs="${rhs%%\#*}"    # Del in line right comments
+        rhs="${rhs%%*( )}"   # Del trailing spaces
+        rhs="${rhs%\"*}"     # Del opening string quotes
+        rhs="${rhs#\"*}"     # Del closing string quotes
+        if [[ $lhs =~ ^\[ ]]; then # Set INI-like sections, e.g. [MAIN]
+          lhs="${lhs%\]*}"     # Del opening bracket
+          lhs="${lhs#\[*}"     # Del closing bracket
+          sec=$lhs
+        else
+          if [[ ! $lhs =~ ^\; ]]; then # Don't parse comments startet with ;
+            name="$sec$lhs"
+            declare ${name}="$rhs"
+            #echo "$name = $rhs" # for debugging only
+          fi
+        fi
+    fi
+done < $configfile.unix
+rm $configfile.unix > /dev/null 2>&1
+# Config file parsing end
+
+# Create databases in /var/run/shm
+if [ -x /usr/bin/logger ]; then 
+	/usr/bin/logger "loxberry-plugin-$pluginname - Creating databases in /var/run/shm"
+fi
+echo "DAEMON: Creating databases in /var/run/shm" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+
+
+# Create sudoers file
+#if [ -x /usr/bin/logger ]; then 
+#	/usr/bin/logger "loxberry-plugin-$pluginname - Adding sudoers permissions"
+#fi
+#echo "DAEMON: Adding sudoers permissions" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+#touch /etc/sudoers.d/$pluginname > /dev/null 2>&1
+#chmod 0640 /etc/sudoers.d/$pluginname > /dev/null 2>&1
+#echo %loxberry ALL = NOPASSWD: REPLACEINSTALLFOLDER/data/plugins/$pluginname/bin/restartdnsmasq > /etc/sudoers.d/$pluginname
+#chmod 0440 /etc/sudoers.d/$pluginname > /dev/null 2>&1
+#chmod 0755 REPLACEINSTALLFOLDER/data/plugins/$pluginname/bin/restartdnsmasq > /dev/null 2>&1
+
+# If the Cloud Mailer Emu should be started
+if [ $SERVEREMU -eq 1 ]
+then
+
+  # Configure dnsmasq
+  if [ -x /usr/bin/logger ]; then 
+  	/usr/bin/logger "loxberry-plugin-$pluginname - Configuring DNSMasq"
+  fi
+  echo "DAEMON: Configuring DNSMasq" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+  CHECKDNSMASQ=`cat REPLACEINSTALLFOLDER/data/system/plugindatabase.dat | grep -c -i DNSmasq`
+  if [ $CHECKDNSMASQ -eq 1 ]
+  then
+    echo "DAEMON: Found installed DNSMasq Plugin. Will do no changes to DNSMasq configuration." >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+  else
+    touch /etc/dnsmasq.d/$pluginname.conf > /dev/null 2>&1
+    CHECKWLAN=`ifconfig | grep -c -i wlan0`
+    if [ $CHECKWLAN -eq 1 ]
+    then
+      OWNIP=`ifconfig wlan0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
+      # Fallback to eth0 if wlan0 isn't configured
+      #if [ -z "$OWNIP" ]
+      PING=`ping -c1 $OWNIP`
+      if [ $? -ne 0 ]
+      then
+        OWNIP=`ifconfig eth0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
+      fi
+    else
+      OWNIP=`ifconfig eth0 | awk '/inet (ad|Ad)/{print $2}' | sed 's/.*://'`
+    fi
+    echo "DAEMON: My own IP is $OWNIP. Redirect weather.loxone.com to $OWNIP." >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+    echo "address=/weather.loxone.com/$OWNIP" > /etc/dnsmasq.d/$pluginname.conf
+    service dnsmasq restart > /dev/null 2>&1
+  fi
+  # Configure Apache2
+  if [ -x /usr/bin/logger ]; then 
+  	/usr/bin/logger "loxberry-plugin-$pluginname - Configuring Apache2"
+  fi
+  echo "DAEMON: Configuring Apache2" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+  a2ensite 001-$pluginname > /dev/null 2>&1
+  service apache2 restart > /dev/null 2>&1
+
+else
+
+  if [ -x /usr/bin/logger ]; then
+        /usr/bin/logger "loxberry-plugin-$pluginname - Uninstalling Apache2 and DNSMasq Configuration"
+  fi
+  echo "DAEMON: Uninstalling Apache2 and DNSMasq Configuration" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+  # Remove Configuration Apache2 and DNSMasq
+  rm /etc/dnsmasq.d/$pluginname.conf > /dev/null 2>&1
+  a2dissite 001-$pluginname > /dev/null 2>&1
+  service apache2 restart > /dev/null 2>&1
+
+fi
+
+# Fetch new weather during boot
+if [ $SERVERGETWUDATA -eq 1 ]
+then
+  if [ -x /usr/bin/logger ]; then
+      /usr/bin/logger "loxberry-plugin-$pluginname - Fetching weather data"
+  fi
+  echo "DAEMON: Fetching weather data" >> REPLACEINSTALLFOLDER/log/plugins/$pluginname/wu4lox.log
+  su loxberry -c "REPLACEINSTALLFOLDER/webfrontend/cgi/plugins/$pluginname/bin/fetch.pl -v > /dev/null 2>&1"
+fi
+
+exit 0
