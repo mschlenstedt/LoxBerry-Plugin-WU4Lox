@@ -10,7 +10,7 @@ if [ -x /usr/bin/logger ]; then
 fi
 
 # Creating logfiles and databases in RAM disk
-echo "DAEMON: reating databases and logfiles in RAM Disk" >> $LBPLOG/$pluginname/wu4lox.log
+echo "DAEMON: Creating databases and logfiles in RAM Disk" >> $LBPLOG/$pluginname/wu4lox.log
 if [ -x /usr/bin/logger ]; then
     /usr/bin/logger "loxberry-plugin-$pluginname - Creating databases and logfiles in RAM Disk"
 fi
