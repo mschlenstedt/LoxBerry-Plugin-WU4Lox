@@ -16,5 +16,10 @@ cp -p -v -r /tmp/$ARGV1\_upgrade/log/$ARGV3/* $ARGV5/log/plugins/$ARGV3/
 echo "<INFO> Remove temporary folders"
 rm -r /tmp/$ARGV1\_upgrade
 
+############################################
+# ERSETZE appv4 durch light Theme
+# ERSETZE classic durch dark Theme
+############################################
+
 # Exit with Status 0
 exit 0

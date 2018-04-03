@@ -14,35 +14,27 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#use strict;
+#use warnings;
+
 ##########################################################################
 # Modules
 ##########################################################################
 
+use LoxBerry::System;
+use LoxBerry::Log;
 use Getopt::Long;
 use IO::Socket; # For sending UDP packages
 use DateTime;
-use File::HomeDir;
-use Cwd 'abs_path';
-use Config::Simple;
-use LWP::UserAgent;
-
-#use strict;
-#use warnings;
 
 ##########################################################################
 # Read settings
 ##########################################################################
 
-# Figure out in which subfolder we are installed
-our $psubfolder = abs_path($0);
-$psubfolder =~ s/(.*)\/(.*)\/bin\/(.*)$/$2/g;
-our $home = File::HomeDir->my_home;
-our $webpath = "/plugins/$psubfolder";
-
 # Version of this script
-my $version = "4.0.3";
+my $version = "4.1.4";
 
-our $pcfg             = new Config::Simple("$home/config/plugins/$psubfolder/wu4lox.cfg");
+our $pcfg             = new Config::Simple("$lbpconfigdir/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
 my  $senddfc          = $pcfg->param("SERVER.SENDDFC");
 my  $sendhfc          = $pcfg->param("SERVER.SENDHFC");
@@ -52,18 +44,28 @@ our $emu              = $pcfg->param("SERVER.EMU");
 our $stdtheme         = $pcfg->param("WEB.THEME");
 our $stdiconset       = $pcfg->param("WEB.ICONSET");
 
-our $cfg              = new Config::Simple("$home/config/system/general.cfg");
-my  $installfolder    = $cfg->param("BASE.INSTALLFOLDER");
-my  $miniservers      = $cfg->param("BASE.MINISERVERS");
-my  $clouddns         = $cfg->param("BASE.CLOUDDNS");
-my  $lang             = $cfg->param("BASE.LANG");
+# Language
+our $lang = lblanguage();
+
+# Create a logging object
+my $log = LoxBerry::Log->new (  name => 'fetch',
+                        filename => "$lbplogdir/wu4lox_fetch.log",
+                        append => 1,
+);
 
 # Commandline options
 my $verbose = '';
-my $help = '';
 
 GetOptions ('verbose' => \$verbose,
-                'quiet'   => sub { $verbose = 0 });
+            'quiet'   => sub { $verbose = 0 });
+
+if ($verbose) {
+        $log->stdout(1);
+        $log->loglevel(7);
+}
+
+LOGSTART "WU4Lox DATATOLOXONE process started";
+LOGDEB "This is $0 Version $version";
 
 ##########################################################################
 # Main program
@@ -71,12 +73,8 @@ GetOptions ('verbose' => \$verbose,
 
 my $i;
 
-# Starting...
-my $logmessage = "<INFO> Starting $0 Version $version\n";
-&log;
-
 # Clear HTML databse
-open(F,">$home/webfrontend/html/plugins/$psubfolder/weatherdata.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/weatherdata.html";
+open(F,">$lbphtmldir/weatherdata.html");
   print F "";
 close(F);
 
@@ -91,49 +89,12 @@ my $dateref = DateTime->new(
 our $sendqueue = 0;
 our $sendqueuelimit = 50;
 
-# If we should send by UDP, figure out which Miniservers are configured
-if ($sendudp) {
-
-  for ($i=1;$i<=$miniservers;$i++) {
-
-    ${miniservername . "$i"} = $cfg->param("MINISERVER$i.NAME");
-
-    if ( $cfg->param("MINISERVER$i.USECLOUDDNS") ) {
-      my $miniservermac = $cfg->param("MINISERVER$i.CLOUDURL");
-      my $dns_info = `$home/webfrontend/cgi/system/tools/showclouddns.pl $miniservermac`;
-      my @dns_info_pieces = split /:/, $dns_info;
-      if ($dns_info_pieces[0]) {
-        $dns_info_pieces[0] =~ s/^\s+|\s+$//g;
-        ${miniserverip . "$i"} = $dns_info_pieces[0]; 
-        $logmessage = "<INFO> Send Data to " . ${miniservername . "$i"} . " at " . ${miniserverip . "$i"} . " using CloudDNS.\n";
-        &log;
-      } else {
-        ${miniserverip . "$i"} = "127.0.0.1"; 
-        $logmessage = "<ERROR> Could not find IP Address for " . ${miniservername . "$i"} . " using CloudDNS.\n";
-        &log;
-      }
-    } else {
-      if ( $cfg->param("MINISERVER$i.IPADDRESS") ) {
-        ${miniserverip . "$i"} = $cfg->param("MINISERVER$i.IPADDRESS");
-        $logmessage = "<INFO> Send Data to " . ${miniservername . "$i"}  . " at " . ${miniserverip . "$i"} . ".\n";
-        &log;
-      } else {
-        ${miniserverip . "$i"} = "127.0.0.1"; 
-        $logmessage = "<ERROR> Could not find IP Address for " . ${miniservername . "$i"} . ".\n";
-        &log;
-      }
-    }
-    
-  }
-
-}
-
 #
 # Print out current conditions
 #
 
 # Read data
-open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+open(F,"<$lbplogdir/current.dat");
   our $curdata = <F>;
 close(F);
 
@@ -155,7 +116,7 @@ if (@fields[0] eq "") {
 }
 
 # Correct Epoch by Timezone
-$tzseconds = (@fields[4] / 100 * 3600);
+my $tzseconds = (@fields[4] / 100 * 3600);
 
 # EpochDate - Corrected by TZ
 our $epochdate = DateTime->from_epoch(
@@ -354,18 +315,18 @@ $udp = 1; # Really send now in one run
 #
 
 # Read data
-open(F,"<$home/data/plugins/$psubfolder/dailyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/dailyforecast.dat";
+open(F,"<$lbplogdir/dailyforecast.dat");
   our @dfcdata = <F>;
 close(F);
 
 foreach (@dfcdata){
   s/[\n\r]//g;
-  my @fields = split(/\|/);
+  @fields = split(/\|/);
 
   my $per = @fields[0];
 
   # Send values only if we should do so
-  my $send = 0;
+  our $send = 0;
   foreach (split(/;/,$senddfc)){
     if ($_ eq $per) {
       $send = 1;
@@ -503,18 +464,18 @@ foreach (@dfcdata){
 #
 
 # Read data
-open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
+open(F,"<$lbplogdir/hourlyforecast.dat");
   our @hfcdata = <F>;
 close(F);
 
 foreach (@hfcdata){
   s/[\n\r]//g;
-  my @fields = split(/\|/);
+  @fields = split(/\|/);
 
   my $per = @fields[0];
 
   # Send values only if we should do so
-  my $send = 0;
+  $send = 0;
   foreach (split(/;/,$sendhfc)){
     if ($_ eq $per) {
       $send = 1;
@@ -713,7 +674,7 @@ my $tmppopmax48 = 0;
 
 foreach (@hfcdata){
   s/[\n\r]//g;
-  my @fields = split(/\|/);
+  @fields = split(/\|/);
 
   # Default values for min/max
   if ( @fields[0] == 1 ) {
@@ -952,112 +913,108 @@ $udp = 1; # Really send now in one run
 # Create Webpages
 #
 
-$logmessage = "<INFO> Creating Webpages...\n";
-&log;
+LOGINF "Creating Webpages...";
 
-$theme = $stdtheme;
-$iconset = $stdiconset;
-$themeurlmain = "./webpage.html";
-$themeurldfc = "./webpage.dfc.html";
-$themeurlhfc = "./webpage.hfc.html";
-$themeurlmap = "./webpage.map.html";
-
-# Date Reference: Convert into Loxone Epoche (1.1.2009)
-my $dateref = DateTime->new(
-      year      => 2009,
-      month     => 1,
-      day       => 1,
-      time_zone => 'local',
-);
+our $theme = $stdtheme;
+our $iconset = $stdiconset;
+our $themeurlmain = "./webpage.html";
+our $themeurldfc = "./webpage.dfc.html";
+our $themeurlhfc = "./webpage.hfc.html";
+our $themeurlmap = "./webpage.map.html";
 
 #############################################
 # CURRENT CONDITIONS
 #############################################
 
 # Get current weather data from database
-open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
-  our $curdata = <F>;
-close(F);
+#open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+#  our $curdata = <F>;
+#close(F);
 
-chomp $curdata;
+#chomp $curdata;
 
-my @fields = split(/\|/,$curdata);
+@fields = split(/\|/,$curdata);
 
-$cur_date = @fields[0];
-$cur_date_des = @fields[1];
-$cur_date_tz_des_sh = @fields[2];
-$cur_date_tz_des = @fields[3];
-$cur_date_tz = @fields[4];
+our $cur_date = @fields[0];
+our $cur_date_des = @fields[1];
+our $cur_date_tz_des_sh = @fields[2];
+our $cur_date_tz_des = @fields[3];
+our $cur_date_tz = @fields[4];
 
-our $epochdate = DateTime->from_epoch(
-      epoch      => @fields[0],
-      time_zone => 'local',
-);
+#our $epochdate = DateTime->from_epoch(
+#      epoch      => @fields[0],
+#      time_zone => 'local',
+#);
 
-$cur_day        = sprintf("%02d", $epochdate->day);
-$cur_month      = sprintf("%02d", $epochdate->month);
-$cur_hour       = sprintf("%02d", $epochdate->hour);
-$cur_min        = sprintf("%02d", $epochdate->minute);
-$cur_year       = $epochdate->year;
-$cur_loc_n      = @fields[5];
-$cur_loc_c      = @fields[6];
-$cur_loc_ccode  = @fields[7];
-$cur_loc_lat    = @fields[8];
-$cur_loc_long   = @fields[9];
-$cur_loc_el     = @fields[10];
-$cur_hu         = @fields[13];
-$cur_w_dirdes   = @fields[14];
-$cur_w_dir      = @fields[15];
-$cur_sr         = @fields[22];
-$cur_uvi        = @fields[24];
-$cur_we_icon    = @fields[27];
-$cur_we_code    = @fields[28];
-$cur_we_des     = @fields[29];
-$cur_moon_p     = @fields[30];
-$cur_moon_a     = @fields[31];
-$cur_moon_ph    = @fields[32];
-$cur_moon_h     = @fields[33];
+our $cur_day        = sprintf("%02d", $epochdate->day);
+our $cur_month      = sprintf("%02d", $epochdate->month);
+our $cur_hour       = sprintf("%02d", $epochdate->hour);
+our $cur_min        = sprintf("%02d", $epochdate->minute);
+our $cur_year       = $epochdate->year;
+our $cur_loc_n      = @fields[5];
+our $cur_loc_c      = @fields[6];
+our $cur_loc_ccode  = @fields[7];
+our $cur_loc_lat    = @fields[8];
+our $cur_loc_long   = @fields[9];
+our $cur_loc_el     = @fields[10];
+our $cur_hu         = @fields[13];
+our $cur_w_dirdes   = @fields[14];
+our $cur_w_dir      = @fields[15];
+our $cur_sr         = @fields[22];
+our $cur_uvi        = @fields[24];
+our $cur_we_icon    = @fields[27];
+our $cur_we_code    = @fields[28];
+our $cur_we_des     = @fields[29];
+our $cur_moon_p     = @fields[30];
+our $cur_moon_a     = @fields[31];
+our $cur_moon_ph    = @fields[32];
+our $cur_moon_h     = @fields[33];
 
 if (!$metric) {
-$cur_tt         = @fields[11]*1.8+32;
-$cur_tt_fl      = @fields[12]*1.8+32;
-$cur_w_sp       = @fields[16]*0.621371192;
-$cur_w_gu       = @fields[17]*0.621371192;
-$cur_w_ch       = @fields[18]*1.8+32;
-$cur_pr         = @fields[19]*0.0295301;
-$cur_dp         = @fields[20]*1.8+32;
-$cur_vis        = @fields[21]*0.621371192;
-$cur_hi         = @fields[23]*1.8+32;
-$cur_prec_today = @fields[25]*0.0393700787;
-$cur_prec_1hr   = @fields[26]*0.0393700787;
+our $cur_tt         = @fields[11]*1.8+32;
+our $cur_tt_fl      = @fields[12]*1.8+32;
+our $cur_w_sp       = @fields[16]*0.621371192;
+our $cur_w_gu       = @fields[17]*0.621371192;
+our $cur_w_ch       = @fields[18]*1.8+32;
+our $cur_pr         = @fields[19]*0.0295301;
+our $cur_dp         = @fields[20]*1.8+32;
+our $cur_vis        = @fields[21]*0.621371192;
+our $cur_hi         = @fields[23]*1.8+32;
+our $cur_prec_today = @fields[25]*0.0393700787;
+our $cur_prec_1hr   = @fields[26]*0.0393700787;
 } else {
-$cur_tt         = @fields[11];
-$cur_tt_fl      = @fields[12];
-$cur_w_sp       = @fields[16];
-$cur_w_gu       = @fields[17];
-$cur_w_ch       = @fields[18];
-$cur_pr         = @fields[19];
-$cur_dp         = @fields[20];
-$cur_vis        = @fields[21];
-$cur_hi         = @fields[23];
-$cur_prec_today = @fields[25];
-$cur_prec_1hr   = @fields[26];
+our $cur_tt         = @fields[11];
+our $cur_tt_fl      = @fields[12];
+our $cur_w_sp       = @fields[16];
+our $cur_w_gu       = @fields[17];
+our $cur_w_ch       = @fields[18];
+our $cur_pr         = @fields[19];
+our $cur_dp         = @fields[20];
+our $cur_vis        = @fields[21];
+our $cur_hi         = @fields[23];
+our $cur_prec_today = @fields[25];
+our $cur_prec_1hr   = @fields[26];
 }
 
-$cur_sun_r = "@fields[34]:@fields[35]";
-$cur_sun_s = "@fields[36]:@fields[37]";
+our $cur_sun_r = "@fields[34]:@fields[35]";
+our $cur_sun_s = "@fields[36]:@fields[37]";
 
 # Use night icons between sunset and sunrise
-$hour_sun_r = @fields[34];
-$hour_sun_s = @fields[36];
+our $hour_sun_r = @fields[34];
+our $hour_sun_s = @fields[36];
 if ($cur_hour > $hour_sun_s || $cur_hour < $hour_sun_r) {
-  $cur_dayornight = "n";
+our  $cur_dayornight = "n";
 } else {
-  $cur_dayornight = "d";
+our  $cur_dayornight = "d";
 }
 
-open(F1,">$home/webfrontend/html/plugins/$psubfolder/webpage.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/webpage.html";
-open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html";
+# Write cached weboage
+$lang = lblanguage();
+if (!-e "$lbptemplatedir/themes/$lang/$theme.main.html") {
+	$lang = "en";
+}
+open(F1,">$lbplogdir/webpage.html");
+open(F,"<$lbptemplatedir/themes/$lang/$theme.main.html");
 while (<F>) {
   $_ =~ s/<!--\$(.*?)-->/${$1}/g;
   print F1 $_;
@@ -1065,12 +1022,21 @@ while (<F>) {
 close(F);
 close(F1);
 
+if (-e "$lbplogdir/webpage.html") {
+	LOGDEB "$lbplogdir/webpage.html created.";
+}
+
 #############################################
 # MAP VIEW
 #############################################
 
-open(F1,">$home/webfrontend/html/plugins/$psubfolder/webpage.map.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/webpage.map.html";
-open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.map.html") || die "Missing template $home/templates/plugins/$psubfolder/$lang/themes/$theme.map.html";
+# Write cached weboage
+$lang = lblanguage();
+if (!-e "$lbptemplatedir/themes/$lang/$theme.map.html") {
+	$lang = "en";
+}
+open(F1,">$lbplogdir/webpage.map.html");
+open(F,"<$lbptemplatedir/themes/$lang/$theme.map.html");
   while (<F>) {
     $_ =~ s/<!--\$(.*?)-->/${$1}/g;
     print F1 $_;
@@ -1078,20 +1044,24 @@ open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.map.html") || d
 close(F);
 close(F1);
 
+if (-e "$lbplogdir/webpage.map.html") {
+	LOGDEB "$lbplogdir/webpage.map.html created.";
+}
+
 #############################################
 # Daily Forecast
 #############################################
 
 # Read data
-open(F,"<$home/data/plugins/$psubfolder/dailyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/dailyforecast.dat";
-  our @dfcdata = <F>;
-close(F);
+#open(F,"<$home/data/plugins/$psubfolder/dailyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/dailyforecast.dat";
+#  our @dfcdata = <F>;
+#close(F);
 
 foreach (@dfcdata){
   s/[\n\r]//g;
-  my @fields = split(/\|/);
+  @fields = split(/\|/);
 
-  my $per = @fields[0] - 1;
+  $per = @fields[0] - 1;
 
   ${dfc.$per._per} = @fields[0] - 1;
   ${dfc.$per._date} = @fields[1];
@@ -1139,8 +1109,13 @@ foreach (@dfcdata){
 
 }
 
-open(F1,">$home/webfrontend/html/plugins/$psubfolder/webpage.dfc.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/webpage.dfc.html";
-open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.dfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.dfc.html";
+# Write cached weboage
+$lang = lblanguage();
+if (!-e "$lbptemplatedir/themes/$lang/$theme.dfc.html") {
+	$lang = "en";
+}
+open(F1,">$lbplogdir/webpage.dfc.html");
+open(F,"<$lbptemplatedir/themes/$lang/$theme.dfc.html");
   while (<F>) {
     $_ =~ s/<!--\$(.*?)-->/${$1}/g;
     print F1 $_;
@@ -1148,14 +1123,18 @@ open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.dfc.html") || d
 close(F);
 close(F1);
 
+if (-e "$lbplogdir/webpage.dfc.html") {
+	LOGDEB "$lbplogdir/webpage.dfc.html created.";
+}
+
 #############################################
 # Hourly Forecast
 #############################################
 
 # Read data
-open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
-  our @hfcdata = <F>;
-close(F);
+#open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
+#  our @hfcdata = <F>;
+#close(F);
 
 foreach (@hfcdata){
   s/[\n\r]//g;
@@ -1212,8 +1191,13 @@ foreach (@hfcdata){
 
 }
 
-open(F1,">$home/webfrontend/html/plugins/$psubfolder/webpage.hfc.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/webpage.hfc.html";
-open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html";
+# Write cached weboage
+$lang = lblanguage();
+if (!-e "$lbptemplatedir/themes/$lang/$theme.hfc.html") {
+	$lang = "en";
+}
+open(F1,">$lbplogdir/webpage.hfc.html");
+open(F,"<$lbptemplatedir/themes/$lang/$theme.hfc.html");
   while (<F>) {
     $_ =~ s/<!--\$(.*?)-->/${$1}/g;
     print F1 $_;
@@ -1221,8 +1205,11 @@ open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html") || d
 close(F);
 close(F1);
 
-$logmessage = "<OK> Webpages created successfully.\n";
-&log;
+if (-e "$lbplogdir/webpage.hfc.html") {
+	LOGDEB "$lbplogdir/webpage.hfc.html created.";
+}
+
+LOGOK "Webpages created successfully.";
 
 #
 # Create Cloud Weather Emu
@@ -1240,8 +1227,7 @@ $logmessage = "<OK> Webpages created successfully.\n";
 
 if ($emu) {
 
-  $logmessage = "<INFO> Creating Files for Cloud Weather Emulator...\n";
-  &log;
+  LOGINF "Creating Files for Cloud Weather Emulator...";
 
   #############################################
   # CURRENT CONDITIONS
@@ -1252,17 +1238,17 @@ if ($emu) {
 
   # Get current weather data from database
 
-  open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
-    $curdata = <F>;
-  close(F);
+  #open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+  #  $curdata = <F>;
+  #close(F);
 
-  chomp $curdata;
+  #chomp $curdata;
 
   @fields = split(/\|/,$curdata);
 
-  open(F,">$home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt";
+  open(F,">$lbplogdir/index.txt");
     print F "<mb_metadata>\n";
-    print F "id;name;longitude;latitude;height (m.asl.);country;timezone;utc-timedifference;sunrise;sunset;\n";
+    print F "id;name;longitude;latitude;height (m.asl.);country;timezone;utc-timedifference;sunrise;sunset;";
     print F "local date;weekday;local time;temperature(C);feeledTemperature(C);windspeed(km/h);winddirection(degr);wind gust(km/h);low clouds(%);medium clouds(%);high clouds(%);precipitation(mm);probability of Precip(%);snowFraction;sea level pressure(hPa);relative humidity(%);CAPE;picto-code;radiation (W/m2);\n";
     print F "</mb_metadata><valid_until>2030-12-31</valid_until>\n";
     print F "<station>\n";
@@ -1404,9 +1390,9 @@ if ($emu) {
   #############################################
 
   # Get current weather data from database
-  open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
-    $hfcdata = <F>;
-  close(F);
+  #open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
+  #  $hfcdata = <F>;
+  #close(F);
 
   # Original file has 169 entrys, but always starts at 0:00 today or 12:00 yesterday. We alsways start with current data
   # (we don't have historical data) and offer 168 hourly forcast datasets. This seems to be ok for the miniserver.
@@ -1414,7 +1400,7 @@ if ($emu) {
   $i = 0;
   my $hfcdate;
 
-  open(F,">>$home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/emu/forecast/index.txt";
+  open(F,">>$lbplogdir/index.txt");
 
     foreach (@hfcdata) {
 
@@ -1585,51 +1571,36 @@ exit;
 # Subroutines
 #
 
-# error Message
-sub error {
-  $logmessage = "ERROR: $errormessage\n";
-  print "\n$logmessage\n";
-  exit;
-}  
-
-sub log {
-  # Print
-  if ($verbose || $error) {print $logmessage;}
-  return();
-}
-
 sub send {
 
   # Create HTML webpage
-  $logmessage = "<OK> Adding value to /plugins/$psubfolder/weatherdata.html. Value:$name\@$value\n";
-  &log;
-  open(F,">>$home/webfrontend/html/plugins/$psubfolder/weatherdata.html") || die "Cannot open $home/webfrontend/html/plugins/$psubfolder/weatherdata.html";
+  LOGINF "Adding value to weatherdata.html. Value:$name\@$value";
+  open(F,">>$lbplogdir/weatherdata.html");
     print F "$name\@$value<br>\n";
   close(F);
 
   # Send by UDP
-  if ($sendudp) {
-   $tmpudp .= "$name\@$value; ";
-   if ($udp == 1) {
-    for ($i=1;$i<=$miniservers;$i++) {
-
-      # Send value
-      my $sock = IO::Socket::INET->new(
+  my %miniservers;
+  %miniservers = LoxBerry::System::get_miniservers();
+  
+  if ($miniservers{1}{IPAddress} ne "" && $sendudp) {
+    $tmpudp .= "$name\@$value; ";
+    if ($udp == 1) {
+      foreach my $ms (sort keys %miniservers) {
+        LOGINF "$sendqueue: Send Data " . $miniservers{$ms}{Name};
+        # Send value
+        my $sock = IO::Socket::INET->new(
         Proto    => 'udp',
         PeerPort => $udpport,
-        PeerAddr => ${miniserverip . "$i"},
-      ) or die "<ERROR> Could not create socket: $!\n";
-      $sock->send($tmpudp) or die "Send error: $!\n";
-      if ($verbose) {
-        $logmessage = "<OK> $sendqueue: Send OK to " . ${miniservername . "$i"} . ". IP:" . ${miniserverip . "$i"} . " Port:$udpport Value:$name\@$value\n";
-        &log;
+        PeerAddr =>  $miniservers{$ms}{IPAddress},
+        );
+        $sock->send($tmpudp);
+        LOGOK "$sendqueue: Send OK to " . $miniservers{$ms}{Name} . ". IP:" . $miniservers{$ms}{IPAddress} . " Port:$udpport Value:$name\@$value";
+        $sendqueue++;
       }
-      $sendqueue++;
-
+      $udp = 0;
+      $tmpudp = "";
     }
-    $udp = 0;
-    $tmpudp = "";
-   }
   }
 
   return();
