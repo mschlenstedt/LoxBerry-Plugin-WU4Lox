@@ -20,171 +20,524 @@
 ##########################################################################
 
 use CGI::Carp qw(fatalsToBrowser);
-use CGI qw/:standard/;
+use CGI;
 use LWP::UserAgent;
 use JSON qw( decode_json );
-use Config::Simple;
-use File::HomeDir;
-use Cwd 'abs_path';
+use LoxBerry::System;
+use LoxBerry::Web;
 #use warnings;
 #use strict;
-#no strict "refs"; # we need it for template system
 
 ##########################################################################
 # Variables
 ##########################################################################
 
-our $cfg;
-our $pcfg;
-our $phrase;
-our $namef;
-our $value;
-our %query;
-our $lang;
-our $template_title;
-our $help;
-our @help;
-our $helptext;
-our $helplink;
-our $installfolder;
-our $planguagefile;
-our $version;
-our $error;
-our $saveformdata = 0;
-our $output;
-our $message;
-our $nexturl;
-our $do = "form";
-my  $home = File::HomeDir->my_home;
-our $psubfolder;
-our $pname;
-our $verbose;
-our $languagefileplugin;
-our $phraseplugin;
-our $stationtyp;
-our $selectedstationtyp1;
-our $selectedstationtyp2;
-our $selectedstationtyp3;
-our $lat;
-our $long;
-our $stationid;
-our $wuapikey;
-our $getwudata;
-our $cron;
-our $wulang;
-our $metric;
-our $sendudp;
-our $udpport;
-our $senddfc;
-our $sendhfc;
-our $var;
-our $theme;
-our $iconset;
-our $dfc;
-our $hfc;
-our $wuurl;
-our $ua;
-our $res;
-our $json;
-our $urlstatus;
-our $urlstatuscode;
-our $decoded_json;
-our $query;
-our $querystation;
-our $found;
-our $i;
-our $emu;
-our $emuwarning;
-our $checkdnsmasq;
+# Read Form
+my $cgi = CGI->new;
+$cgi->import_names('R');
 
 ##########################################################################
 # Read Settings
 ##########################################################################
 
 # Version of this script
-$version = "0.0.9";
+my $version = LoxBerry::System::pluginversion();
 
-# Figure out in which subfolder we are installed
-$psubfolder = abs_path($0);
-$psubfolder =~ s/(.*)\/(.*)\/(.*)$/$2/g;
-
-$cfg             = new Config::Simple("$home/config/system/general.cfg");
-$installfolder   = $cfg->param("BASE.INSTALLFOLDER");
-$lang            = $cfg->param("BASE.LANG");
+# Settings
+my $cfg = new Config::Simple("$lbpconfigdir/wu4lox.cfg");
+my $wuurl = $cfg->param("SERVER.WUURL");
 
 #########################################################################
 # Parameter
 #########################################################################
 
-# Everything from URL
-foreach (split(/&/,$ENV{'QUERY_STRING'}))
-{
-  ($namef,$value) = split(/=/,$_,2);
-  $namef =~ tr/+/ /;
-  $namef =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-  $value =~ tr/+/ /;
-  $value =~ s/%([a-fA-F0-9][a-fA-F0-9])/pack("C", hex($1))/eg;
-  $query{$namef} = $value;
-}
-
-# Set parameters coming in - get over post
-if ( !$query{'saveformdata'} ) { 
-	if ( param('saveformdata') ) { 
-		$saveformdata = quotemeta(param('saveformdata')); 
-	} else { 
-		$saveformdata = 0;
-	} 
-} else { 
-	$saveformdata = quotemeta($query{'saveformdata'}); 
-}
-#if ( !$query{'lang'} ) {
-#	if ( param('lang') ) {
-#		$lang = quotemeta(param('lang'));
-#	} else {
-#		$lang = "de";
-#	}
-#} else {
-#	$lang = quotemeta($query{'lang'}); 
-#}
-if ( !$query{'do'} ) { 
-	if ( param('do')) {
-		$do = quotemeta(param('do'));
-	} else {
-		$do = "form";
-	}
-} else {
-	$do = quotemeta($query{'do'});
-}
-
-# Clean up saveformdata variable
-$saveformdata =~ tr/0-1//cd;
-$saveformdata = substr($saveformdata,0,1);
-
-# Init Language
-# Clean up lang variable
-$lang =~ tr/a-z//cd;
-$lang = substr($lang,0,2);
-
-# If there's no language phrases file for choosed language, use german as default
-if (!-e "$installfolder/templates/plugins/$psubfolder/$lang/language.dat") {
-	$lang = "de";
-}
-
-# Read translations / phrases
-$planguagefile	= "$installfolder/templates/plugins/$psubfolder/$lang/language.dat";
-$pphrase = new Config::Simple($planguagefile);
+my $error;
 
 ##########################################################################
 # Main program
 ##########################################################################
 
-if ($saveformdata) {
-  &save;
+# Template
+my $template = HTML::Template->new(
+    filename => "$lbptemplatedir/settings.html",
+    global_vars => 1,
+    loop_context_vars => 1,
+    die_on_bad_params => 0,
+    associate => $cfg,
+);
 
-} else {
-  &form;
+# Language
+my %L = LoxBerry::Web::readlanguage($template, "language.ini");
+
+# Save Form 1 (Wunderground)
+if ($R::saveformdata1) {
+	
+  	$template->param( FORMNO => '1' );
+
+	# Check for Station
+	our $querystation;
+	if ($R::stationtyp eq "statid") {
+		$querystation = $R::stationid;
+	} 
+	elsif ($R::stationtyp eq "coord") {
+		$querystation = $R::coordlat . "," .$R::coordlong;
+	}
+	else {
+		$querystation = "autoip";
+	}
+
+	# 1. attempt to query Wunderground
+	&wuquery;
+
+	$found = 0;
+	if ( $decoded_json->{current_observation}->{station_id} ) {
+		$found = 1;
+	}
+	if ( !$found && $decoded_json->{response}->{error}->{type} eq "keynotfound" ) {
+		$error = $L{'SETTINGS.ERR_API_KEY'} . "<br><br><b>WU Error Message:</b> $decoded_json->{response}->{error}->{description}";
+		&error;
+		exit;
+	}
+
+	# 2. attempt to query Wunderground
+	# Before giving up test if it is a PWS
+	if (!$found) {
+		$querystation = "pws:$querystation";
+		&wuquery;
+		if ( $decoded_json->{current_observation}->{station_id} ) {
+			$found = 1;
+		}
+	}
+
+	# 3. attempt to query Wunderground
+	# Before giving up test if it is a ZMW
+	if (!$found) {
+		$querystation = "zmw:$querystation";
+		&wuquery;
+		if ( $decoded_json->{current_observation}->{station_id} ) {
+			$found = 1;
+		}
+	}
+
+	# That was my last attempt - if we haven't found the station, we are giving up.
+	if (!$found) {
+		$error = $pphrase->param("TXT0005");
+		&error;
+		exit;
+	}
+
+	# OK - now installing...
+
+	# Write configuration file(s)
+	$cfg->param("SERVER.WUAPIKEY", "$R::apikey");
+	$cfg->param("SERVER.STATIONTYP", "$R::stationtyp");
+	$cfg->param("SERVER.STATIONID", "\"$querystation\"");
+	$cfg->param("SERVER.COORDLAT", "$R::coordlat");
+	$cfg->param("SERVER.COORDLONG", "$R::coordlong");
+	$cfg->param("SERVER.GETWUDATA", "$R::getwudata");
+	$cfg->param("SERVER.CRON", "$R::cron");
+	$cfg->param("SERVER.METRIC", "$R::metric");
+	$cfg->param("SERVER.WULANG", "$R::wulang");
+
+	$cfg->save();
+		
+	# Create Cronjob
+	if ($R::getwudata eq "1") 
+	{
+	  if ($R::cron eq "1") 
+	  {
+	    system ("ln -s $lbpbindir/fetch.pl $lbhomedir/system/cron/cron.01min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.03min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.05min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	  }
+	  if ($R::cron eq "3") 
+	  {
+	    system ("ln -s $lbpbindir/fetch.pl $lbhomedir/system/cron/cron.03min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.01min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.05min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	  }
+	  if ($R::cron eq "5") 
+	  {
+	    system ("ln -s $lbpbindir/fetch.pl $lbhomedir/system/cron/cron.05min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.01min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.03min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	  }
+	  if ($R::cron eq "10") 
+	  {
+	    system ("ln -s $lbpbindir/fetch.pl $lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.1min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.3min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.5min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	  }
+	  if ($R::cron eq "15") 
+	  {
+	    system ("ln -s $lbpbindir/fetch.pl $lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.01min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.03min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.05min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	  }
+	  if ($R::cron eq "30") 
+	  {
+	    system ("ln -s $lbpbindir/fetch.pl $lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.01min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.03min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.05min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	  }
+	  if ($R::cron eq "60") 
+	  {
+	    system ("ln -s $lbpbindir/fetch.pl $lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.01min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.03min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.05min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	    unlink ("$lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	  }
+	} 
+	else
+	{
+	  unlink ("$lbhomedir/system/cron/cron.01min/$lbpplugindir");
+	  unlink ("$lbhomedir/system/cron/cron.03min/$lbpplugindir");
+	  unlink ("$lbhomedir/system/cron/cron.05min/$lbpplugindir");
+	  unlink ("$lbhomedir/system/cron/cron.10min/$lbpplugindir");
+	  unlink ("$lbhomedir/system/cron/cron.15min/$lbpplugindir");
+	  unlink ("$lbhomedir/system/cron/cron.30min/$lbpplugindir");
+	  unlink ("$lbhomedir/system/cron/cron.hourly/$lbpplugindir");
+	}
+
+	# Template output
+	&save;
+
+	exit;
 
 }
+
+# Save Form 2 (Miniserver)
+if ($R::saveformdata2) {
+	
+  	$template->param( FORMNO => '2' );
+
+	my $dfc;
+	for (my $i=1;$i<=4;$i++) {
+		if ( ${"R::dfc$i"} ) {
+			if ( !$dfc ) {
+				$dfc = $i;
+			} else {
+				$dfc = $dfc . ";" . $i;
+			}
+		}
+	}
+	my $hfc;
+	for ($i=1;$i<=36;$i++) {
+		if ( ${"R::hfc$i"} ) {
+			if ( !$hfc ) {
+				$hfc = $i;
+			} else {
+				$hfc = $hfc . ";" . $i;
+			}
+		}
+	}
+	
+	# Write configuration file(s)
+	$cfg->param("SERVER.SENDDFC", "$dfc");
+	$cfg->param("SERVER.SENDHFC", "$hfc");
+	$cfg->param("SERVER.SENDUDP", "$R::sendudp");
+	$cfg->param("SERVER.UDPPORT", "$R::udpport");
+
+	$cfg->save();
+	
+	# Template output
+	&save;
+
+	exit;
+
+}
+
+# Save Form 3 (Website)
+if ($R::saveformdata3) {
+	
+  	$template->param( FORMNO => '3' );
+
+	# Write configuration file(s)
+	$cfg->param("SERVER.EMU", "$R::emu");
+	$cfg->param("WEB.THEME", "$R::theme");
+	$cfg->param("WEB.ICONSET", "$R::iconset");
+
+	$cfg->save();
+	
+	# Template output
+	&save;
+
+	exit;
+
+}
+
+# Navbar
+our %navbar;
+$navbar{1}{Name} = "$L{'SETTINGS.LABEL_WU_SETTINGS'}";
+$navbar{1}{URL} = 'index.cgi?form=1';
+
+$navbar{2}{Name} = "$L{'SETTINGS.LABEL_MINISERVERCONNECTION'}";
+$navbar{2}{URL} = 'index.cgi?form=2';
+
+$navbar{3}{Name} = "$L{'SETTINGS.LABEL_CLOUDEMU'} / $L{'SETTINGS.LABEL_WEBSITE'}";
+$navbar{3}{URL} = 'index.cgi?form=3';
+
+$navbar{4}{Name} = "$L{'SETTINGS.LABEL_LOG'}";
+$navbar{4}{URL} = "/admin/system/tools/logfile.cgi?logfile=plugins/$lbpplugindir/wu4lox.log&header=html&format=template&only=once";
+$navbar{4}{target} = '_blank';
+
+# Menu: Wunderground
+if ($R::form eq "1" || !$R::form) {
+
+  $navbar{1}{active} = 1;
+  $template->param( "FORM1", 1);
+  $template->param( FORMNO => '1' );
+
+  my @values;
+  my %labels;
+  
+  # Statiotyp
+  @values = ('statid', 'coord', 'autoip');
+  %labels = (
+        'statid' => $L{'SETTINGS.LABEL_STATIONID'},
+        'coord' => $L{'SETTINGS.LABEL_COORDINATES'},
+        'autoip' => $L{'SETTINGS.LABEL_IPADDRESS'},
+    );
+  my $stationtyp = $cgi->radio_group(
+        -name    => 'stationtyp',
+        -id      => 'stationtyp',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('SERVER.STATIONTYP'),
+	-onClick => "disable()",
+    );
+  $template->param( STATIONTYP => $stationtyp );
+
+  # WU Language
+  @values = ('CZ', 'DL', 'EN', 'SP', 'FR' );
+  %labels = (
+        'DL' => 'Deutsch',
+        'EN' => 'English',
+        'FR' => 'Francaise',
+        'SP' => 'Español',
+        'CZ' => 'Český',
+    );
+  my $wulang = $cgi->popup_menu(
+        -name    => 'wulang',
+        -id      => 'wulang',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('SERVER.WULANG'),
+    );
+  $template->param( WULANG => $wulang );
+
+  # Units
+  @values = ('1', '0' );
+  %labels = (
+        '1' => $L{'SETTINGS.LABEL_METRIC'},
+        '0' => $L{'SETTINGS.LABEL_IMPERIAL'},
+    );
+  my $metric = $cgi->popup_menu(
+        -name    => 'metric',
+        -id      => 'metric',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('SERVER.METRIC'),
+    );
+  $template->param( METRIC => $metric );
+
+  # GetWUData
+  @values = ('0', '1' );
+  %labels = (
+        '0' => $L{'SETTINGS.LABEL_OFF'},
+        '1' => $L{'SETTINGS.LABEL_ON'},
+    );
+  my $getwudata = $cgi->popup_menu(
+        -name    => 'getwudata',
+        -id      => 'getwudata',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('SERVER.GETWUDATA'),
+    );
+  $template->param( GETWUDATA => $getwudata );
+
+  # Cron
+  @values = ('1', '3', '5', '10', '15', '30', '60' );
+  %labels = (
+        '1' => $L{'SETTINGS.LABEL_1MINUTE'},
+        '3' => $L{'SETTINGS.LABEL_3MINUTE'},
+        '5' => $L{'SETTINGS.LABEL_5MINUTE'},
+        '10' => $L{'SETTINGS.LABEL_10MINUTE'},
+        '15' => $L{'SETTINGS.LABEL_15MINUTE'},
+        '30' => $L{'SETTINGS.LABEL_30MINUTE'},
+        '60' => $L{'SETTINGS.LABEL_60MINUTE'},
+    );
+  my $cron = $cgi->popup_menu(
+        -name    => 'cron',
+        -id      => 'cron',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('SERVER.CRON'),
+    );
+  $template->param( CRON => $cron );
+
+# Menu: Miniserver
+} elsif ($R::form eq "2") {
+  $navbar{2}{active} = 1;
+  $template->param( "FORM2", 1);
+
+  # SendUDP
+  @values = ('0', '1' );
+  %labels = (
+        '0' => $L{'SETTINGS.LABEL_OFF'},
+        '1' => $L{'SETTINGS.LABEL_ON'},
+    );
+  my $sendudp = $cgi->popup_menu(
+        -name    => 'sendudp',
+        -id      => 'sendudp',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('SERVER.SENDUDP'),
+    );
+  $template->param( SENDUDP => $sendudp );
+
+  # DFC
+  my $dfc;
+  my $n;
+  my $checked;
+  my @fields = split(/;/,$cfg->param('SERVER.SENDDFC'));
+  for (my $i=1;$i<=4;$i++) {
+    $checked = 0;
+    foreach ( split( /;/,$cfg->param('SERVER.SENDDFC') ) ) {
+      if ($_ eq $i) {
+        $checked = 1;
+      }
+    }
+    $n = $i-1;
+    $dfc .= $cgi->checkbox(
+        -name    => "dfc$i",
+        -id      => "dfc$i",
+	-checked => $checked,
+        -value   => '1',
+	-label   => "+$n $L{'SETTINGS.LABEL_DAYS'}",
+      );
+  }
+  $template->param( DFC => $dfc );
+
+  # HFC
+  my $hfc;
+  @fields = split(/;/,$cfg->param('SERVER.SENDHFC'));
+  for ($i=1;$i<=36;$i++) {
+    $checked = 0;
+    foreach ( split( /;/,$cfg->param('SERVER.SENDHFC') ) ) {
+      if ($_ eq $i) {
+        $checked = 1;
+      }
+    }
+    $hfc .= $cgi->checkbox(
+        -name    => "hfc$i",
+        -id      => "hfc$i",
+	-checked => $checked,
+        -value   => '1',
+	-label   => "+$i $L{'SETTINGS.LABEL_HOURS'}",
+      );
+  }
+  $template->param( HFC => $hfc );
+
+# Menu: Cloudweather / Website
+} elsif ($R::form eq "3") {
+  $navbar{3}{active} = 1;
+  $template->param( "FORM3", 1);
+  
+  # Check for installed DNSMASQ-Plugin
+  my $checkdnsmasq = `cat $lbhomedir/data/system/plugindatabase.dat | grep -c -i DNSmasq`;
+  if ($checkdnsmasq > 0) {
+    $template->param( EMUWARNING => $L{'ERR_DNSMASQ_PLUGIN'} );
+  }
+
+  # Cloudweather Emu
+  @values = ('0', '1' );
+  %labels = (
+        '0' => $L{'SETTINGS.LABEL_OFF'},
+        '1' => $L{'SETTINGS.LABEL_ON'},
+    );
+  my $emu = $cgi->popup_menu(
+        -name    => 'emu',
+        -id      => 'emu',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('SERVER.EMU'),
+    );
+  $template->param( EMU => $emu );
+
+  # Theme
+  @values = ('dark', 'light', 'custom' );
+  %labels = (
+        'dark' => "Dark Theme",
+        'light' => "Light Theme",
+        'custom' => "Custom Theme",
+    );
+  my $theme = $cgi->popup_menu(
+        -name    => 'theme',
+        -id      => 'theme',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('WEB.THEME'),
+    );
+  $template->param( THEME => $theme );
+
+  # Icon Set
+  @values = ('color', 'flat', 'dark', 'light', 'green', 'silver', 'realistic', 'custom' );
+  %labels = (
+        'color' => "Color Set",
+        'flat' => "Flat Set",
+        'dark' => "Dark Set",
+        'light' => "Light Set",
+        'green' => "Green Set",
+        'silver' => "Silver Set",
+        'realistic' => "Realistic Set",
+        'custom' => "Custom Set",
+    );
+  my $iconset = $cgi->popup_menu(
+        -name    => 'iconset',
+        -id      => 'iconset',
+        -values  => \@values,
+	-labels  => \%labels,
+	-default => $cfg->param('WEB.ICONSET'),
+    );
+  $template->param( ICONSET => $iconset );
+
+}
+
+# Template Vars and Form parts
+$template->param( "LBPPLUGINDIR", $lbpplugindir);
+
+# Template
+LoxBerry::Web::lbheader($L{'SETTINGS.LABEL_PLUGINTITLE'} . " V$version", "http://www.loxwiki.eu/display/LOXBERRY/Any+Plugin", "help.html");
+print $template->output();
+LoxBerry::Web::lbfooter();
 
 exit;
 
@@ -217,111 +570,6 @@ sub form {
 	$emu              = $pcfg->param("SERVER.EMU");
 	$theme            = $pcfg->param("WEB.THEME");
 	$iconset          = $pcfg->param("WEB.ICONSET");
-
-	# Filter
-	$stationtyp = quotemeta($stationtyp);
-	
-	# Prepare form defaults
-	# STATIONTYP
-	if ($stationtyp eq "statid") {
-	  $selectedstationtyp1 = "checked=checked";
-	} elsif ($stationtyp eq "coord") {
-	  $selectedstationtyp2 = "checked=checked";
-	} elsif ($stationtyp eq "autoip") {
-	  $selectedstationtyp3 = "checked=checked";
-	} else {
-	  $selectedstationtyp1 = "checked=checked";
-	} 
-	# GETWUDATA
-	if ($getwudata eq "1") {
-	  $selectedgetwudata2 = "selected=selected";
-	} else {
-	  $selectedgetwudata1 = "selected=selected";
-	} 
-	# WULANG
-	if ($wulang eq "DL") {
-	  $selectedwulang1 = "selected=selected";
-	} elsif ($wulang eq "EN") {
-	  $selectedwulang2 = "selected=selected";
-	} else {
-	  $selectedwulang1 = "selected=selected";
-	} 
-	# METRIC
-	if ($metric eq "1") {
-	  $selectedmetric1 = "selected=selected";
-	} else {
-	  $selectedmetric2 = "selected=selected";
-	} 
-	# CRON
-	if ($cron eq "1") {
-	  $selectedcron1 = "selected=selected";
-	} elsif ($cron eq "3") {
-	  $selectedcron2 = "selected=selected";
-	} elsif ($cron eq "5") {
-	  $selectedcron3 = "selected=selected";
-	} elsif ($cron eq "10") {
-	  $selectedcron4 = "selected=selected";
-	} elsif ($cron eq "15") {
-	  $selectedcron5 = "selected=selected";
-	} elsif ($cron eq "30") {
-	  $selectedcron6 = "selected=selected";
-	} elsif ($cron eq "60") {
-	  $selectedcron7 = "selected=selected";
-	} else {
-	  $selectedcron2 = "selected=selected";
-	}
-	# SENDUDP
-	if ($sendudp eq "1") {
-	  $selectedsendudp2 = "selected=selected";
-	} else {
-	  $selectedsendudp1 = "selected=selected";
-	} 
-	# DFC
-	foreach (split(/;/,$senddfc)){
-		$var ="selecteddfc$_";
-		${$var} = "checked=checked";
-	}
-	# HFC
-	foreach (split(/;/,$sendhfc)){
-		$var ="selectedhfc$_";
-		${$var} = "checked=checked";
-	}
-	# THEME
-	if ($theme eq "classic") {
-	  $selectedtheme1 = "selected=selected";
-	} elsif ($theme eq "appv4") {
-	  $selectedtheme2 = "selected=selected";
-	} elsif ($theme eq "custom") {
-	  $selectedtheme3 = "selected=selected";
-	} else {
-	  $selectedtheme2 = "selected=selected";
-	}
-	# ICONSET
-	if ($iconset eq "color") {
-	  $selectediconset1 = "selected=selected";
-	} elsif ($iconset eq "flat") {
-	  $selectediconset2 = "selected=selected";
-	} elsif ($iconset eq "dark") {
-	  $selectediconset3 = "selected=selected";
-	} elsif ($iconset eq "light") {
-	  $selectediconset4 = "selected=selected";
-	} elsif ($iconset eq "green") {
-	  $selectediconset5 = "selected=selected";
-	} elsif ($iconset eq "silver") {
-	  $selectediconset6 = "selected=selected";
-	} elsif ($iconset eq "realistic") {
-	  $selectediconset7 = "selected=selected";
-	} elsif ($iconset eq "custom") {
-	  $selectediconset8 = "selected=selected";
-	} else {
-	  $selectediconset4 = "selected=selected";
-	}
-	# EMU
-	if ($emu eq "1") {
-	  $selectedemu2 = "selected=selected";
-	} else {
-	  $selectedemu1 = "selected=selected";
-	} 
 
         # Check for installed DNSMASQ-Plugin
         $checkdnsmasq = `cat $home/data/system/plugindatabase.dat | grep -c -i DNSmasq`;
@@ -596,86 +844,54 @@ sub wuquery
 {
 
         # Get data from Wunderground Server (API request) for testing API Key and Station
-        $query = "$wuurl\/$wuapikey\/conditions\/pws:1\/lang:EN\/q\/$querystation\.json";
+        my $query = "$wuurl\/$R::apikey\/conditions\/pws:1\/lang:EN\/q\/$querystation\.json";
 
-        $ua = new LWP::UserAgent;
-        $res = $ua->get($query);
-        $json = $res->decoded_content();
+        my $ua = new LWP::UserAgent;
+        my $res = $ua->get($query);
+        my $json = $res->decoded_content();
 
         # Check status of request
-        $urlstatus = $res->status_line;
-        $urlstatuscode = substr($urlstatus,0,3);
+        my $urlstatus = $res->status_line;
+        my $urlstatuscode = substr($urlstatus,0,3);
 
-        if ($urlstatuscode ne "200") {
-                $error = $pphrase->param("TXT0003") . "<br><br><b>URL:</b> $query<br><b>STATUS CODE:</b> $urlstatuscode";
+	if ($urlstatuscode ne "200") {
+                $error = $L{'SETTINGS.ERR_NO_DATA'} . "<br><br><b>URL:</b> $query<br><b>STATUS CODE:</b> $urlstatuscode";
                 &error;
-                exit;
-        }
+	}
 
         # Decode JSON response from server
-        $decoded_json = decode_json( $json );
+        our $decoded_json = decode_json( $json );
 
 	return();
 
 }
 
 #####################################################
-# Error-Sub
+# Error
 #####################################################
 
-sub error 
+sub error
 {
-	$template_title = $pphrase->param("TXT0000") . " - " . $pphrase->param("TXT0001");
-	print "Content-Type: text/html\n\n"; 
-	&lbheader;
-	open(F,"$installfolder/templates/system/$lang/error.html") || die "Missing template system/$lang/error.html";
-	while (<F>) 
-	{
-		$_ =~ s/<!--\$(.*?)-->/${$1}/g;
-		print $_;
-	}
-	close(F);
-	&footer;
+	$template->param( "ERROR", 1);
+	$template->param( "ERRORMESSAGE", $error);
+	LoxBerry::Web::lbheader($L{'SETTINGS.LABEL_PLUGINTITLE'} . " V$version", "http://www.loxwiki.eu/display/LOXBERRY/Any+Plugin", "help.html");
+	print $template->output();
+	LoxBerry::Web::lbfooter();
+
 	exit;
 }
 
 #####################################################
-# Page-Header-Sub
+# Error
 #####################################################
 
-	sub lbheader 
-	{
-		 # Create Help page
-	  $helplink = "http://www.loxwiki.eu:80/x/uYCm";
-	  open(F,"$installfolder/templates/plugins/$psubfolder/$lang/help.html") || die "Missing template plugins/$psubfolder/$lang/help.html";
-	    @help = <F>;
-	    foreach (@help)
-	    {
-	      s/[\n\r]/ /g;
-	      $_ =~ s/<!--\$(.*?)-->/${$1}/g;
-	      $helptext = $helptext . $_;
-	    }
-	  close(F);
-	  open(F,"$installfolder/templates/system/$lang/header.html") || die "Missing template system/$lang/header.html";
-	    while (<F>) 
-	    {
-	      $_ =~ s/<!--\$(.*?)-->/${$1}/g;
-	      print $_;
-	    }
-	  close(F);
-	}
+sub save
+{
+	$template->param( "SAVE", 1);
+	LoxBerry::Web::lbheader($L{'SETTINGS.LABEL_PLUGINTITLE'} . " V$version", "http://www.loxwiki.eu/display/LOXBERRY/Any+Plugin", "help.html");
+	print $template->output();
+	LoxBerry::Web::lbfooter();
 
-#####################################################
-# Footer
-#####################################################
+	exit;
+}
 
-	sub footer 
-	{
-	  open(F,"$installfolder/templates/system/$lang/footer.html") || die "Missing template system/$lang/footer.html";
-	    while (<F>) 
-	    {
-	      $_ =~ s/<!--\$(.*?)-->/${$1}/g;
-	      print $_;
-	    }
-	  close(F);
-	}

@@ -49,7 +49,7 @@ our $lang = lblanguage();
 
 # Create a logging object
 my $log = LoxBerry::Log->new (  name => 'fetch',
-                        filename => "$lbplogdir/wu4lox_fetch.log",
+                        filename => "$lbplogdir/wu4lox.log",
                         append => 1,
 );
 
