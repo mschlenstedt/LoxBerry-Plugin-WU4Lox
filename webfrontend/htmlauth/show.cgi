@@ -32,7 +32,7 @@ use CGI qw/:standard/;
 ##########################################################################
 
 # Version of this script
-my $version = "3.0.3";
+my $version = "4.1.1";
 
 # Figure out in which subfolder we are installed
 our $psubfolder = abs_path($0);
@@ -103,7 +103,7 @@ my $dateref = DateTime->new(
 if ($map) {
   # Output Theme ot Browser
   print "Content-type: text/html\n\n";
-  open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.map.html") || die "Missing template $home/templates/plugins/$psubfolder/$lang/themes/$theme.map.html";
+  open(F,"<$home/templates/plugins/$psubfolder/themes/$lang/$theme.map.html") || die "Missing template $home/templates/plugins/$psubfolder/themes/$lang/$theme.map.html";
        while (<F>) {
          $_ =~ s/<!--\$(.*?)-->/${$1}/g;
          print $_;
@@ -120,7 +120,7 @@ if ($map) {
 if ($dfc) {
 
   # Read data
-  open(F,"<$home/data/plugins/$psubfolder/dailyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/dailyforecast.dat";
+  open(F,"<$home/log/plugins/$psubfolder/dailyforecast.dat") || die "Cannot open $home/log/plugins/$psubfolder/dailyforecast.dat";
     our @dfcdata = <F>;
   close(F);
 
@@ -178,7 +178,7 @@ if ($dfc) {
 
   # Output Theme to Browser
   print "Content-type: text/html\n\n";
-  open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.dfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.dfc.html";
+  open(F,"<$home/templates/plugins/$psubfolder/themes/$lang/$theme.dfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/themes/$lang/$theme.dfc.html";
        while (<F>) {
          $_ =~ s/<!--\$(.*?)-->/${$1}/g;
          print $_;
@@ -195,7 +195,7 @@ if ($dfc) {
 if ($hfc) {
 
   # Get current weather data from database - Needed for Sunrise and Sunset
-  open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+  open(F,"<$home/log/plugins/$psubfolder/current.dat") || die "Cannot open $home/log/plugins/$psubfolder/current.dat";
     our $curdata = <F>;
   close(F);
   chomp $curdata;
@@ -204,7 +204,7 @@ if ($hfc) {
   $hour_sun_s = @fields[36];
 
   # Read data for Hourly Forecast
-  open(F,"<$home/data/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/data/plugins/$psubfolder/hourlyforecast.dat";
+  open(F,"<$home/log/plugins/$psubfolder/hourlyforecast.dat") || die "Cannot open $home/log/plugins/$psubfolder/hourlyforecast.dat";
     our @hfcdata = <F>;
   close(F);
 
@@ -265,7 +265,7 @@ if ($hfc) {
 
   # Output Theme to Browser
   print "Content-type: text/html\n\n";
-  open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.hfc.html";
+  open(F,"<$home/templates/plugins/$psubfolder/themes/$lang/$theme.hfc.html") || die "Missing template <$home/templates/plugins/$psubfolder/themes/$lang/$theme.hfc.html";
        while (<F>) {
          $_ =~ s/<!--\$(.*?)-->/${$1}/g;
          print $_;
@@ -281,7 +281,7 @@ if ($hfc) {
 #############################################
 
 # Get current weather data from database
-open(F,"<$home/data/plugins/$psubfolder/current.dat") || die "Cannot open $home/data/plugins/$psubfolder/current.dat";
+open(F,"<$home/log/plugins/$psubfolder/current.dat") || die "Cannot open $home/log/plugins/$psubfolder/current.dat";
   our $curdata = <F>;
 close(F);
 
@@ -364,7 +364,7 @@ if ($cur_hour > $hour_sun_s || $cur_hour < $hour_sun_r) {
 
 # Output Theme to Browser
 print "Content-type: text/html\n\n";
-open(F,"<$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html") || die "Missing template <$home/templates/plugins/$psubfolder/$lang/themes/$theme.main.html";
+open(F,"<$home/templates/plugins/$psubfolder/themes/$lang/$theme.main.html") || die "Missing template <$home/templates/plugins/$psubfolder/themes/$lang/$theme.main.html";
      while (<F>) {
        $_ =~ s/<!--\$(.*?)-->/${$1}/g;
        print $_;

@@ -22,56 +22,34 @@
 
 # To use important variables from command line use the following code:
 ARGV0=$0 # Zero argument is shell command
-#echo "<INFO> Command is: $ARGV0"
-
 ARGV1=$1 # First argument is temp folder during install
-#echo "<INFO> Temporary folder is: $ARGV1"
-
 ARGV2=$2 # Second argument is Plugin-Name for scipts etc.
-#echo "<INFO> (Short) Name is: $ARGV2"
-
 ARGV3=$3 # Third argument is Plugin installation folder
-#echo "<INFO> Installation folder is: $ARGV3"
-
 ARGV4=$4 # Forth argument is Plugin version
-#echo "<INFO> Installation folder is: $ARGV4"
-
 ARGV5=$5 # Fifth argument is Base folder of LoxBerry
-#echo "<INFO> Base folder is: $ARGV5"
-
-# Replace real subfolder and scriptname in config files
-#echo "<INFO> Replacing VARS with real pathes in $ARGV5/config/plugins/$ARGV3/wu4lox.cfg"
-#/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#g" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
-#/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#g" $ARGV5/config/plugins/$ARGV3/wu4lox.cfg
-
-#echo "<INFO> Replacing VARS with real pathes in $ARGV5/config/plugins/$ARGV3/apache2.conf"
-#/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#g" $ARGV5/config/plugins/$ARGV3/apache2.conf
-#/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#g" $ARGV5/config/plugins/$ARGV3/apache2.conf
-
-#echo "<INFO> Replacing VARS with real pathes in $ARGV5/system/daemons/plugins/$ARGV3"
-#/bin/sed -i "s#REPLACESUBFOLDER#$ARGV3#g" $ARGV5/system/daemons/plugins/$ARGV3
-#/bin/sed -i "s#REPLACEINSTALLFOLDER#$ARGV5#g" $ARGV5/system/daemons/plugins/$ARGV3
 
 # Copy Apache2 configuration for WU4Lox
-#echo "<INFO> Installing Apache2 configuration for WU4Lox"
-#cp $ARGV5/config/plugins/$ARGV3/apache2.conf $ARGV5/system/apache2/sites-available/001-$ARGV3.conf > /dev/null 2>&1
+echo "<INFO> Installing Apache2 configuration for WU4Lox"
+cp $LBHOMEDIR/config/plugins/$ARGV3/apache2.conf $LBHOMEDIR/system/apache2/sites-available/001-$ARGV3.conf > /dev/null 2>&1
 
-# Installing Dummy Data files
-#echo "<INFO> Installing Dummy Weather databases"
-#mkdir -p /var/run/shm/$ARGV3 > /dev/null 2>&1
-#rm $ARGV5/log/plugins/$ARGV3/wu4lox.log > /dev/null 2>&1
-#rm $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
-#rm $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
-#rm $ARGV5/data/plugins/$ARGV3/dailyforecast.dat > /dev/null 2>&1
-#touch /var/run/shm/$ARGV3/wu4lox.log > /dev/null 2>&1
-#cp $ARGV5/data/plugins/$ARGV3/dummies/* /var/run/shm/$ARGV3 > /dev/null 2>&1
-#ln -s /var/run/shm/$ARGV3/wu4lox.log $ARGV5/log/plugins/$ARGV3/wu4lox.log > /dev/null 2>&1
-#ln -s /var/run/shm/$ARGV3/current.dat $ARGV5/data/plugins/$ARGV3/current.dat > /dev/null 2>&1
-#ln -s /var/run/shm/$ARGV3/hourlyforecast.dat $ARGV5/data/plugins/$ARGV3/hourlyforecast.dat > /dev/null 2>&1
-#ln -s /var/run/shm/$ARGV3/dailyforecast.dat $ARGV5/data/plugins/$ARGV3/dailyforecast.dat > /dev/null 2>&1
-#chown -R loxberry.loxberry /var/run/shm/$ARGV3/
-#chown -R loxberry.loxberry $ARGV5/log/plugins/$ARGV3 > /dev/null 2>&1
-#chown -R loxberry.loxberry $ARGV5/data/plugins/$ARGV3 > /dev/null 2>&1
+echo "<INFO> Installing Cronjob"
+ln -s REPLACELBPBINDIR/wu4lox_cronjob.sh $LBHOMEDIR/system/cron/cron.hourly/wu4lox_cronjob.sh > /dev/null 2>&1
+
+# Copy Dummy files
+echo "<INFO> Copy dummy data files"
+if [ ! -e $LBPLOG/$ARGV3/current.dat ]; then
+	cp $LBPDATA/$ARGV3/dummies/current.dat $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/dailyforecast.dat ]; then
+	cp $LBPDATA/$ARGV3/dummies/dailyforecast.dat $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/hourlyforecast.dat ]; then
+	cp $LBPDATA/$ARGV3/dummies/hourlyforecast.dat $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/hourlyhistory.dat ]; then
+	cp $LBPDATA/$ARGV3/dummies/hourlyhistory.dat $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+REPLACELBPBINDIR/wu4lox_cronjob.sh > /dev/null 2>&1
 
 # Exit with Status 0
 exit 0

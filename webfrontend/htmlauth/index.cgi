@@ -53,6 +53,12 @@ my $wuurl = $cfg->param("SERVER.WUURL");
 
 my $error;
 
+# Set default if not available
+if (!$cfg->param("SERVER.EMU")) {
+        $cfg->param("SERVER.EMU", "0");
+        $cfg->save();
+}
+
 ##########################################################################
 # Main program
 ##########################################################################
@@ -121,7 +127,7 @@ if ($R::saveformdata1) {
 
 	# That was my last attempt - if we haven't found the station, we are giving up.
 	if (!$found) {
-		$error = $pphrase->param("TXT0005");
+		$error = $L{'SETTINGS.ERR_NO_WEATHERSTATION'};
 		&error;
 		exit;
 	}
@@ -542,301 +548,6 @@ LoxBerry::Web::lbfooter();
 exit;
 
 #####################################################
-# 
-# Subroutines
-#
-#####################################################
-
-#####################################################
-# Form-Sub
-#####################################################
-
-sub form {
-
-	$pcfg             = new Config::Simple("$installfolder/config/plugins/$psubfolder/wu4lox.cfg");
-	$stationtyp       = $pcfg->param("SERVER.STATIONTYP");
-	$wuapikey         = $pcfg->param("SERVER.WUAPIKEY");
-	$stationid        = $pcfg->param("SERVER.STATIONID");
-	$coordlat         = $pcfg->param("SERVER.COORDLAT");
-	$coordlong        = $pcfg->param("SERVER.COORDLONG");
-	$getwudata        = $pcfg->param("SERVER.GETWUDATA");
-	$cron             = $pcfg->param("SERVER.CRON");
-	$wulang           = $pcfg->param("SERVER.WULANG");
-	$metric           = $pcfg->param("SERVER.METRIC");
-	$sendudp          = $pcfg->param("SERVER.SENDUDP");
-	$udpport          = $pcfg->param("SERVER.UDPPORT");
-	$senddfc          = $pcfg->param("SERVER.SENDDFC");
-	$sendhfc          = $pcfg->param("SERVER.SENDHFC");
-	$emu              = $pcfg->param("SERVER.EMU");
-	$theme            = $pcfg->param("WEB.THEME");
-	$iconset          = $pcfg->param("WEB.ICONSET");
-
-        # Check for installed DNSMASQ-Plugin
-        $checkdnsmasq = `cat $home/data/system/plugindatabase.dat | grep -c -i DNSmasq`;
-	if ($checkdnsmasq > 0) {
-          $emuwarning = $pphrase->param("TXT0007");
-	}
-
-	print "Content-Type: text/html\n\n";
-	
-	$template_title = $pphrase->param("TXT0000") . ": " . $pphrase->param("TXT0001");
-	
-	# Print Template
-	&lbheader;
-	open(F,"$installfolder/templates/plugins/$psubfolder/$lang/settings.html") || die "Missing template plugins/$psubfolder/$lang/settings.html";
-	  while (<F>) 
-	  {
-	    $_ =~ s/<!--\$(.*?)-->/${$1}/g;
-	    print $_;
-	  }
-	close(F);
-	&footer;
-
-	exit;
-
-}
-
-#####################################################
-# Save-Sub
-#####################################################
-
-sub save 
-{
-
-	# Read Config
-	$pcfg    = new Config::Simple("$installfolder/config/plugins/$psubfolder/wu4lox.cfg");
-	$wuurl   = $pcfg->param("SERVER.WUURL");
-	$pname   = $pcfg->param("PLUGIN.SCRIPTNAME");
-
-	# Everything from Forms
-	$apikey     = param('apikey');
-	$stationtyp = param('stationtyp');
-	$stationid  = param('stationid');
-	$coordlat   = param('coordlat');
-	$coordlong  = param('coordlong');
-	$wulang     = param('wulang');
-	$metric     = param('metric');
-	$getwudata  = param('getwudata');
-	$emu        = param('emu');
-	$cron       = param('cron');
-	$sendudp    = param('sendudp');
-	$udpport    = param('udpport');
-	$theme      = param('theme');
-	$iconset    = param('iconset');
-	for ($i=1;$i<=4;$i++) {
-		if ( param("dfc$i") &&  param("dfc$i") ne "0" &&  param("dfc$i") ne "" ) {
-			if ($i eq "1") {
-				$dfc = $i;
-			} else {
-				$dfc = $dfc . ";" . $i;
-			}
-		}
-	}
-	for ($i=1;$i<=36;$i++) {
-		if ( param("hfc$i") &&  param("hfc$i") ne "0" &&  param("hfc$i") ne "" ) {
-			if ($i eq "1") {
-				$hfc = $i;
-			} else {
-				$hfc = $hfc . ";" . $i;
-			}
-		}
-	}
-	
-	# Filter
-	$wuapikey   = quotemeta($apikey);
-	$stationtyp = quotemeta($stationtyp);
-	#$stationid = quotemeta($stationid);
-	#$coordlat   = quotemeta($coordlat);
-	#$coordlong  = quotemeta($coordlong);
-	$wulang     = quotemeta($wulang);
-	$metric     = quotemeta($metric);
-	$getwudata  = quotemeta($getwudata);
-	$emu        = quotemeta($emu);
-	$cron       = quotemeta($cron);
-	$sendudp    = quotemeta($sendudp);
-	$udpport    = quotemeta($udpport);
-	#$dfc        = quotemeta($dfc);
-	#$hfc        = quotemeta($hfc);
-	$theme      = quotemeta($theme);
-	$iconset    = quotemeta($iconset);
-
-	# Check for Station
-	if ($stationtyp eq "statid") {
-		$querystation = $stationid;
-	} 
-	elsif ($stationtyp eq "coord") {
-		$querystation = $coordlat . "," .$coordlong;
-	}
-	else {
-		$querystation = "autoip";
-	}
-
-	# 1. attempt to query Wunderground
-	&wuquery;
-
-	$found = 0;
-	if ( $decoded_json->{current_observation}->{station_id} ) {
-		$found = 1;
-	}
-	if ( !$found && $decoded_json->{response}->{error}->{type} eq "keynotfound" ) {
-		$error = $pphrase->param("TXT0004") . "<br><br><b>WU Error Message:</b> $decoded_json->{response}->{error}->{description}";
-		&error;
-		exit;
-	}
-
-	# 2. attempt to query Wunderground
-	# Before giving up test if it is a PWS
-	if (!$found) {
-		$querystation = "pws:$querystation";
-		&wuquery;
-		if ( $decoded_json->{current_observation}->{station_id} ) {
-			$found = 1;
-		}
-	}
-
-	# 3. attempt to query Wunderground
-	# Before giving up test if it is a ZMW
-	if (!$found) {
-		$querystation = "zmw:$querystation";
-		&wuquery;
-		if ( $decoded_json->{current_observation}->{station_id} ) {
-			$found = 1;
-		}
-	}
-
-	# That was my last attempt - if we haven't found the station, we are giving up.
-	if (!$found) {
-		$error = $pphrase->param("TXT0005");
-		&error;
-		exit;
-	}
-
-	# OK - now installing...
-
-	# Write configuration file(s)
-	$pcfg->param("SERVER.WUAPIKEY", "$wuapikey");
-	$pcfg->param("SERVER.STATIONTYP", "$stationtyp");
-	$pcfg->param("SERVER.STATIONID", "\"$querystation\"");
-	$pcfg->param("SERVER.COORDLAT", "$coordlat");
-	$pcfg->param("SERVER.COORDLONG", "$coordlong");
-	$pcfg->param("SERVER.GETWUDATA", "$getwudata");
-	$pcfg->param("SERVER.CRON", "$cron");
-	$pcfg->param("SERVER.METRIC", "$metric");
-	$pcfg->param("SERVER.WULANG", "$wulang");
-	$pcfg->param("SERVER.SENDDFC", "$dfc");
-	$pcfg->param("SERVER.SENDHFC", "$hfc");
-	$pcfg->param("SERVER.SENDUDP", "$sendudp");
-	$pcfg->param("SERVER.UDPPORT", "$udpport");
-	$pcfg->param("SERVER.EMU", "$emu");
-	$pcfg->param("WEB.THEME", "$theme");
-	$pcfg->param("WEB.ICONSET", "$iconset");
-
-	$pcfg->save();
-		
-	# Create Cronjob
-	if ($getwudata eq "1") 
-	{
-	  if ($cron eq "1") 
-	  {
-	    system ("ln -s $installfolder/webfrontend/cgi/plugins/$psubfolder/bin/fetch.pl $installfolder/system/cron/cron.01min/$pname");
-	    unlink ("$installfolder/system/cron/cron.03min/$pname");
-	    unlink ("$installfolder/system/cron/cron.05min/$pname");
-	    unlink ("$installfolder/system/cron/cron.10min/$pname");
-	    unlink ("$installfolder/system/cron/cron.15min/$pname");
-	    unlink ("$installfolder/system/cron/cron.30min/$pname");
-	    unlink ("$installfolder/system/cron/cron.hourly/$pname");
-	  }
-	  if ($cron eq "3") 
-	  {
-	    system ("ln -s $installfolder/webfrontend/cgi/plugins/$psubfolder/bin/fetch.pl $installfolder/system/cron/cron.03min/$pname");
-	    unlink ("$installfolder/system/cron/cron.01min/$pname");
-	    unlink ("$installfolder/system/cron/cron.05min/$pname");
-	    unlink ("$installfolder/system/cron/cron.10min/$pname");
-	    unlink ("$installfolder/system/cron/cron.15min/$pname");
-	    unlink ("$installfolder/system/cron/cron.30min/$pname");
-	    unlink ("$installfolder/system/cron/cron.hourly/$pname");
-	  }
-	  if ($cron eq "5") 
-	  {
-	    system ("ln -s $installfolder/webfrontend/cgi/plugins/$psubfolder/bin/fetch.pl $installfolder/system/cron/cron.05min/$pname");
-	    unlink ("$installfolder/system/cron/cron.01min/$pname");
-	    unlink ("$installfolder/system/cron/cron.03min/$pname");
-	    unlink ("$installfolder/system/cron/cron.10min/$pname");
-	    unlink ("$installfolder/system/cron/cron.15min/$pname");
-	    unlink ("$installfolder/system/cron/cron.30min/$pname");
-	    unlink ("$installfolder/system/cron/cron.hourly/$pname");
-	  }
-	  if ($cron eq "10") 
-	  {
-	    system ("ln -s $installfolder/webfrontend/cgi/plugins/$psubfolder/bin/fetch.pl $installfolder/system/cron/cron.10min/$pname");
-	    unlink ("$installfolder/system/cron/cron.1min/$pname");
-	    unlink ("$installfolder/system/cron/cron.3min/$pname");
-	    unlink ("$installfolder/system/cron/cron.5min/$pname");
-	    unlink ("$installfolder/system/cron/cron.15min/$pname");
-	    unlink ("$installfolder/system/cron/cron.30min/$pname");
-	    unlink ("$installfolder/system/cron/cron.hourly/$pname");
-	  }
-	  if ($cron eq "15") 
-	  {
-	    system ("ln -s $installfolder/webfrontend/cgi/plugins/$psubfolder/bin/fetch.pl $installfolder/system/cron/cron.15min/$pname");
-	    unlink ("$installfolder/system/cron/cron.01min/$pname");
-	    unlink ("$installfolder/system/cron/cron.03min/$pname");
-	    unlink ("$installfolder/system/cron/cron.05min/$pname");
-	    unlink ("$installfolder/system/cron/cron.10min/$pname");
-	    unlink ("$installfolder/system/cron/cron.30min/$pname");
-	    unlink ("$installfolder/system/cron/cron.hourly/$pname");
-	  }
-	  if ($cron eq "30") 
-	  {
-	    system ("ln -s $installfolder/webfrontend/cgi/plugins/$psubfolder/bin/fetch.pl $installfolder/system/cron/cron.30min/$pname");
-	    unlink ("$installfolder/system/cron/cron.01min/$pname");
-	    unlink ("$installfolder/system/cron/cron.03min/$pname");
-	    unlink ("$installfolder/system/cron/cron.05min/$pname");
-	    unlink ("$installfolder/system/cron/cron.10min/$pname");
-	    unlink ("$installfolder/system/cron/cron.15min/$pname");
-	    unlink ("$installfolder/system/cron/cron.hourly/$pname");
-	  }
-	  if ($cron eq "60") 
-	  {
-	    system ("ln -s $installfolder/webfrontend/cgi/plugins/$psubfolder/bin/fetch.pl $installfolder/system/cron/cron.hourly/$pname");
-	    unlink ("$installfolder/system/cron/cron.01min/$pname");
-	    unlink ("$installfolder/system/cron/cron.03min/$pname");
-	    unlink ("$installfolder/system/cron/cron.05min/$pname");
-	    unlink ("$installfolder/system/cron/cron.10min/$pname");
-	    unlink ("$installfolder/system/cron/cron.15min/$pname");
-	    unlink ("$installfolder/system/cron/cron.30min/$pname");
-	  }
-	} 
-	else
-	{
-	  unlink ("$installfolder/system/cron/cron.01min/$pname");
-	  unlink ("$installfolder/system/cron/cron.03min/$pname");
-	  unlink ("$installfolder/system/cron/cron.05min/$pname");
-	  unlink ("$installfolder/system/cron/cron.10min/$pname");
-	  unlink ("$installfolder/system/cron/cron.15min/$pname");
-	  unlink ("$installfolder/system/cron/cron.30min/$pname");
-	  unlink ("$installfolder/system/cron/cron.hourly/$pname");
-	}
-
-	$template_title = $pphrase->param("TXT0000") . " - " . $pphrase->param("TXT0001");
-	$message = $pphrase->param("TXT0006");
-	$nexturl = "./index.cgi?do=form";
-
-	print "Content-Type: text/html\n\n"; 
-	&lbheader;
-	open(F,"$installfolder/templates/system/$lang/success.html") || die "Missing template system/$lang/error.html";
-	while (<F>) 
-	{
-		$_ =~ s/<!--\$(.*?)-->/${$1}/g;
-		print $_;
-	}
-	close(F);
-	&footer;
-	exit;
-		
-}
-
-#####################################################
 # Query Wunderground
 #####################################################
 
@@ -882,7 +593,7 @@ sub error
 }
 
 #####################################################
-# Error
+# Save
 #####################################################
 
 sub save
