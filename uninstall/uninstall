@@ -5,7 +5,7 @@ echo "<INFO> Un-Installing Apache2 configuration for WU4Lox"
 rm $LBHOMEDIR/system/apache2/sites-available/001-REPLACELBPPLUGINDIR.conf > /dev/null 2>&1
 
 echo "<INFO> Installing Cronjob"
-rm $LBHOMEDIR/system/cron/cron.hourly/wu4lox_cronjob.sh > /dev/null 2>&1
+rm $LBHOMEDIR/system/cron/cron.hourly/99-wu4lox_cronjob > /dev/null 2>&1
 
 # Exit with Status 0
 exit 0

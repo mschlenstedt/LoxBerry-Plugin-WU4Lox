@@ -33,7 +33,7 @@ echo "<INFO> Installing Apache2 configuration for WU4Lox"
 cp $LBHOMEDIR/config/plugins/$ARGV3/apache2.conf $LBHOMEDIR/system/apache2/sites-available/001-$ARGV3.conf > /dev/null 2>&1
 
 echo "<INFO> Installing Cronjob"
-ln -s REPLACELBPBINDIR/wu4lox_cronjob.sh $LBHOMEDIR/system/cron/cron.hourly/wu4lox_cronjob.sh > /dev/null 2>&1
+ln -s REPLACELBPBINDIR/wu4lox_cronjob.sh $LBHOMEDIR/system/cron/cron.hourly/99-wu4lox_cronjob > /dev/null 2>&1
 
 # Copy Dummy files
 echo "<INFO> Copy dummy data files"
