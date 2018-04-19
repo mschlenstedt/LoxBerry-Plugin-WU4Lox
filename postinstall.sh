@@ -70,12 +70,12 @@ fi
 REPLACELBPBINDIR/wu4lox_cronjob.sh > /dev/null 2>&1
 
 echo "<INFO> Creating Symlinks in Webfolder"
-ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.html > /dev/null 2>&1
-ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.map.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.map.html > /dev/null 2>&1
-ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.dfc.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.dfc.html > /dev/null 2>&1
-ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.hfc.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.hfc.html > /dev/null 2>&1
-ln -s $LBPLOG/REPLACELBPPLUGINDIR/weatherdata.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/weatherdata.html > /dev/null 2>&1
-ln -s $LBPLOG/REPLACELBPPLUGINDIR/index.txt $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/emu/forecast/index.txt > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.html $LBHOMEDIR/webfrontend/html/plugins/REPLACELBPPLUGINDIR/webpage.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.map.html $LBHOMEDIR/webfrontend/html/plugins/REPLACELBPPLUGINDIR/webpage.map.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.dfc.html $LBHOMEDIR/webfrontend/html/plugins/REPLACELBPPLUGINDIR/webpage.dfc.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.hfc.html $LBHOMEDIR/webfrontend/html/plugins/REPLACELBPPLUGINDIR/webpage.hfc.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/weatherdata.html $LBHOMEDIR/webfrontend/html/plugins/REPLACELBPPLUGINDIR/weatherdata.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/index.txt $LBHOMEDIR/webfrontend/html/plugins/REPLACELBPPLUGINDIR/emu/forecast/index.txt > /dev/null 2>&1
 
 # Exit with Status 0
 exit 0
