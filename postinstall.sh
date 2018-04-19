@@ -43,13 +43,39 @@ fi
 if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/dailyforecast.dat ]; then
 	cp $LBPDATA/$ARGV3/dummies/dailyforecast.dat $LBPLOG/$ARGV3/ > /dev/null 2>&1
 fi
-if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/hourlyforecast.dat ]; then
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/hourlyforecast.dat ]; then
 	cp $LBPDATA/$ARGV3/dummies/hourlyforecast.dat $LBPLOG/$ARGV3/ > /dev/null 2>&1
 fi
-if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/hourlyhistory.dat ]; then
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/hourlyhistory.dat ]; then
 	cp $LBPDATA/$ARGV3/dummies/hourlyhistory.dat $LBPLOG/$ARGV3/ > /dev/null 2>&1
 fi
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/webpage.html ]; then
+	cp $LBPDATA/$ARGV3/dummies/webpage.html $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/webpage.map.html ]; then
+	cp $LBPDATA/$ARGV3/dummies/webpage.map.html $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/webpage.dfc.html ]; then
+	cp $LBPDATA/$ARGV3/dummies/webpage.dfc.html $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/webpage.hfc.html ]; then
+	cp $LBPDATA/$ARGV3/dummies/webpage.hfc.html $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/weatherdata.html ]; then
+	cp $LBPDATA/$ARGV3/dummies/weatherdata.html $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
+if [ ! -e $LBPLOG/REPLACELBPPLUGINDIR/index.txt ]; then
+	cp $LBPDATA/$ARGV3/dummies/index.txt $LBPLOG/$ARGV3/ > /dev/null 2>&1
+fi
 REPLACELBPBINDIR/wu4lox_cronjob.sh > /dev/null 2>&1
+
+echo "<INFO> Creating Symlinks in Webfolder"
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.map.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.map.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.dfc.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.dfc.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/webpage.hfc.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/webpage.hfc.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/weatherdata.html $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/weatherdata.html > /dev/null 2>&1
+ln -s $LBPLOG/REPLACELBPPLUGINDIR/index.txt $LBHOMEDIR/webfrontend/html/REPLACELBPPLUGINDIR/emu/forecast/index.txt > /dev/null 2>&1
 
 # Exit with Status 0
 exit 0

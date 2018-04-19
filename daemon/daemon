@@ -28,6 +28,24 @@ fi
 if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/hourlyhistory.dat ]; then
 	cp $LBPDATA/$pluginname/hourlyhistory.dat $LBPLOG/$pluginname/
 fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/webpage.html ]; then
+	cp $LBPDATA/$pluginname/webpage.html $LBPLOG/$pluginname/
+fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/webpage.map.html ]; then
+	cp $LBPDATA/$pluginname/webpage.map.html $LBPLOG/$pluginname/
+fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/webpage.dfc.html ]; then
+	cp $LBPDATA/$pluginname/webpage.dfc.html $LBPLOG/$pluginname/
+fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/webpage.hfc.html ]; then
+	cp $LBPDATA/$pluginname/webpage.hfc.html $LBPLOG/$pluginname/
+fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/weatherdata.html ]; then
+	cp $LBPDATA/$pluginname/weatherdata.html $LBPLOG/$pluginname/
+fi
+if [ ! -e $LBPLOG/opt/loxberry/log/plugins/REPLACELBPPLUGINDIR/index.txt ]; then
+	cp $LBPDATA/$pluginname/index.txt $LBPLOG/$pluginname/
+fi
 chown -vR loxberry:loxberry $LBPLOG/$pluginname/* 
 
 # Exit with Status 0

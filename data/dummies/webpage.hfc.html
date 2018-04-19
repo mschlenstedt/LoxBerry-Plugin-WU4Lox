@@ -1,0 +1,972 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Loxone Weather</title>
+    <meta name="viewport" content="width=600, initial-scale=1">
+    <link rel="stylesheet" href="/plugins/wu4lox/jquery/themes/LoxoneClassic.min.css" />
+    <link rel="stylesheet" href="/plugins/wu4lox/jquery/themes/jquery.mobile.icons.min.css" />
+    <link rel="stylesheet" href="/plugins/wu4lox/jquery/css/jquery.mobile.structure-1.4.5.min.css" /> 
+    <script src="/plugins/wu4lox/jquery/js/jquery-1.12.4.min.js"></script>
+    <script src="/plugins/wu4lox/jquery/js/jquery.mobile-1.4.5.min.js"></script>
+</head>
+<body>
+
+<!-- Start of first page: #hfc -->
+<div data-role="page" id="start" >
+	<div data-role="header">
+		<div data-role="navbar">
+			<ul>
+			<li><a href="./webpage.html" data-transition="slide" style="font-size: 1em; line-height: 1.5em">Aktuell</a></li>
+			<li><a href="./webpage.dfc.html" data-transition="slide" style="font-size: 1em; line-height: 1.5em">4 Tage</a></li>
+			<li><a href="#start" class="ui-btn-active ui-state-persist" style="font-size: 1em; line-height: 1.5em">36 Stunden</a></li>
+			<li><a href="./webpage.map.html" data-transition="slide" style="font-size: 1em; line-height: 1.5em">Karte</a></li>
+			</ul>
+		</div><!-- /navbar -->
+	</div><!-- /header -->
+
+	<div role="main" class="ui-content">
+	<div class="ui-body ui-body-a ui-corner-all">
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+			<hr>
+			<table border=0 width="100%">
+				<tr>
+				<td rowspan=2 style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  :<br>
+				  <span style="color: darkgrey">.  </span>
+				</td>
+				<td style="text-align: left; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <img src="/plugins/wu4lox/icons/silver//.png" alt="" width="100" height="100">	
+				</td>
+				<td style="text-align: right; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Max: </span> &deg;C
+				  <span style="color: darkgrey">Gef&uuml;hlt: </span> &deg;C<br>
+				  <span style="color: darkgrey">Regenwahrsch.: </span> %<br>
+				  <span style="color: darkgrey">Regenmenge: </span> mm<br>
+				  <span style="color: darkgrey">Luftfeuchtigkeit: </span> %<br>
+				</td>
+				</tr><tr>
+				<td colspan="2" style="text-align: center; padding: 10px; line-height: 1.5em; vertical-align: middle;">
+				  <span style="color: darkgrey">Vorhersage: </span><br>
+				  <span style="color: darkgrey">Wind: </span>Von  mit  kmh<br>
+				  <span style="color: darkgrey">UV-Index: </span>
+				  <span style="color: darkgrey">Bew&ouml;lkung: </span> %<br>
+				</td>
+				</tr>
+			</table>
+	</div>
+	</div><!-- /content -->
+
+</div><!-- /page hfc -->
+
+</body>
+</html>
+

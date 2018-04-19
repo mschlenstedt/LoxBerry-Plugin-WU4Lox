@@ -74,7 +74,7 @@ LOGDEB "This is $0 Version $version";
 my $i;
 
 # Clear HTML databse
-open(F,">$lbphtmldir/weatherdata.html");
+open(F,">$lbplogdir/weatherdata.html");
   print F "";
 close(F);
 
@@ -921,6 +921,7 @@ our $themeurlmain = "./webpage.html";
 our $themeurldfc = "./webpage.dfc.html";
 our $themeurlhfc = "./webpage.hfc.html";
 our $themeurlmap = "./webpage.map.html";
+our $webpath = "/plugins/$lbpplugindir";
 
 #############################################
 # CURRENT CONDITIONS
@@ -1562,9 +1563,12 @@ if ($emu) {
 
   close(F);
 
+  LOGOK "Files for Cloud Weather Emulator created successfully.";
+
 }
 
 # Finish
+LOGOK "We are done. Good bye.";
 exit;
 
 #
