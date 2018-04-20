@@ -32,7 +32,7 @@ use DateTime;
 ##########################################################################
 
 # Version of this script
-my $version = "4.1.4";
+my $version = "4.1.5";
 
 our $pcfg             = new Config::Simple("$lbpconfigdir/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
@@ -1014,6 +1014,9 @@ $lang = lblanguage();
 if (!-e "$lbptemplatedir/themes/$lang/$theme.main.html") {
 	$lang = "en";
 }
+if (!-e "$lbptemplatedir/themes/$lang/$theme.main.html") {
+	$theme = "dark";
+}
 open(F1,">$lbplogdir/webpage.html");
 open(F,"<$lbptemplatedir/themes/$lang/$theme.main.html");
 while (<F>) {
@@ -1035,6 +1038,9 @@ if (-e "$lbplogdir/webpage.html") {
 $lang = lblanguage();
 if (!-e "$lbptemplatedir/themes/$lang/$theme.map.html") {
 	$lang = "en";
+}
+if (!-e "$lbptemplatedir/themes/$lang/$theme.map.html") {
+	$theme = "dark";
 }
 open(F1,">$lbplogdir/webpage.map.html");
 open(F,"<$lbptemplatedir/themes/$lang/$theme.map.html");
@@ -1114,6 +1120,9 @@ foreach (@dfcdata){
 $lang = lblanguage();
 if (!-e "$lbptemplatedir/themes/$lang/$theme.dfc.html") {
 	$lang = "en";
+}
+if (!-e "$lbptemplatedir/themes/$lang/$theme.dfc.html") {
+	$theme = "dark";
 }
 open(F1,">$lbplogdir/webpage.dfc.html");
 open(F,"<$lbptemplatedir/themes/$lang/$theme.dfc.html");
@@ -1196,6 +1205,9 @@ foreach (@hfcdata){
 $lang = lblanguage();
 if (!-e "$lbptemplatedir/themes/$lang/$theme.hfc.html") {
 	$lang = "en";
+}
+if (!-e "$lbptemplatedir/themes/$lang/$theme.hfc.html") {
+	$theme = "dark";
 }
 open(F1,">$lbplogdir/webpage.hfc.html");
 open(F,"<$lbptemplatedir/themes/$lang/$theme.hfc.html");
