@@ -61,10 +61,11 @@ my $verbose = '';
 GetOptions ('verbose' => \$verbose,
             'quiet'   => sub { $verbose = 0 });
 
-if ($verbose) {
-	$log->stdout(1);
-	$log->loglevel(7);
-}
+# Aus Sicherheitsgründen auskommentiert zum Test Loglevel aus Pluginmanagement
+#if ($verbose) {
+#	$log->stdout(1);
+#	$log->loglevel(7);
+#}
 
 LOGSTART "WU4Lox FETCH process started";
 LOGDEB "This is $0 Version $version";
