@@ -19,18 +19,16 @@
 # Modules
 ##########################################################################
 
+use LoxBerry::System;
+use LoxBerry::Web;
 use CGI::Carp qw(fatalsToBrowser);
-use CGI qw/:standard/;
-use Config::Simple;
-use File::HomeDir;
-use Cwd 'abs_path';
+use CGI;
 use LWP::UserAgent;
 use JSON qw( decode_json );
 use utf8;
 use Encode qw(encode_utf8);
-#use warnings;
+use warnings;
 use strict;
-no strict "refs"; # we need it for template system
 
 ##########################################################################
 # Variables
@@ -44,8 +42,6 @@ our $installdir;
 our $planguagefile;
 our $table;
 our $version;
-our $psubfolder;
-my  $home = File::HomeDir->my_home;
 our $search;
 our $queryurl;
 our $res;
@@ -60,46 +56,43 @@ our $decoded_json;
 our $lat;
 our $long;
 our $numrestotal;
+our $template;
 
 ##########################################################################
 # Read Settings
 ##########################################################################
 
 # Version of this script
-$version = "0.0.2";
+$version = "4.1.1";
 
-# Figure out in which subfolder we are installed
-$psubfolder = abs_path($0);
-$psubfolder =~ s/(.*)\/(.*)\/(.*)$/$2/g;
-
-$cfg             = new Config::Simple("$home/config/system/general.cfg");
-$installdir      = $cfg->param("BASE.INSTALLFOLDER");
-$lang            = $cfg->param("BASE.LANG");
+# Language
+our $lang = lblanguage();
 
 #########################################################################
 # Parameter
 #########################################################################
 
-$search = param('search');
+my $cgi = CGI->new;
+$cgi->import_names('R');
+
+$search = $R::search;
 $search = quotemeta($search);
+
+# Template
+my $template = HTML::Template->new(
+    filename => "$lbptemplatedir/addresslist.html",
+    global_vars => 1,
+    loop_context_vars => 1,
+    die_on_bad_params => 0,
+    #associate => $cfg,
+);
 
 ##########################################################################
 # Language Settings
 ##########################################################################
 
-# Standard is german
-if ($lang eq "") {
-  $lang = "de";
-}
-
-# If there's no template, use german
-if (!-e "$installdir/templates/plugins/$psubfolder/$lang/language.dat") {
-  $lang = "de";
-}
-
 # Read translations
-$planguagefile = "$installdir/templates/plugins/$psubfolder/$lang/language.dat";
-$pphrase = new Config::Simple($planguagefile);
+my %L = LoxBerry::Web::readlanguage($template, "language.ini");
 
 ##########################################################################
 # Main program
@@ -129,30 +122,23 @@ if ($search) {
   }
  
   if (!$numrestotal) {
-    $table = "<tr><td align=\"center\">" . $pphrase->param("TXT0002") . "</td></tr>\n";
+    $table = "<tr><td align=\"center\">" . $L{'SETTINGS.HINT_NO_SEARCH_RESULTS'} . "</td></tr>\n";
   } else { 
     $i = 1;
       for $results( @{$decoded_json->{results}} ){
         $lat = $results->{geometry}->{location}->{lat};
         $long = $results->{geometry}->{location}->{lng};
         $table = $table . "<tr><td align=\"right\">$i\.</td><td>$results->{formatted_address}</td>\n";
-        $table = "$table" ."<td style=\"vertical-align: middle; text-align: center\"><button type=\"button\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" onClick=\"window.opener.document.getElementById('coordlat').value = '$lat';window.opener.document.getElementById('coordlong').value = '$long';window.close()\"> <font size=\"-1\">&Uuml;bernehmen</font></button></td></tr>\n";
+        $table = "$table" ."<td style=\"vertical-align: middle; text-align: center\"><button type=\"button\" data-role=\"button\" data-inline=\"true\" data-mini=\"true\" onClick=\"window.opener.document.getElementById('coordlat').value = '$lat';window.opener.document.getElementById('coordlong').value = '$long';window.close()\"> <font size=\"-1\">" . $L{'SETTINGS.BUTTON_APPLY'} .  "</font></button></td></tr>\n";
         $i++;
       };
   }
 
+  $template->param( "TABLE", $table);
 }
 
-print "Content-Type: text/html\n\n";
-
-$template_title = $pphrase->param("TXT0000") . " - " . $pphrase->param("TXT0001");
-
-# Print Template
-open(F,"$installdir/templates/plugins/$psubfolder/$lang/addresslist.html") || die "Missing template /templates/plugins/$psubfolder/$lang/addresslist.html";
-  while (<F>) {
-    $_ =~ s/<!--\$(.*?)-->/${$1}/g;
-    print $_;
-  }
-close(F);
+LoxBerry::Web::head();
+print $template->output();
+LoxBerry::Web::foot();
 
 exit;
