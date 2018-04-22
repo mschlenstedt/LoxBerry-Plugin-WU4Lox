@@ -292,6 +292,13 @@ if ($R::saveformdata3) {
 
 	$cfg->save();
 	
+	# Enable/Disable CloudEmu
+	if ( $R::emu ) {
+		system("sudo $lbpbindir/cloudemu enable > /dev/null 2>&1");
+	} else {
+		system("sudo $lbpbindir/cloudemu disable > /dev/null 2>&1");
+	}
+
 	# Template output
 	&save;
 
