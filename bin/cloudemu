@@ -42,18 +42,22 @@ case "$1" in
 	# Enable DNSMasq Config
 	echo "My own IP is $OWNIP. Redirecting weather.loxone.com to $OWNIP."
 	touch /etc/dnsmasq.d/$pluginname.conf > /dev/null 2>&1
+	echo "Enabling DNSMasq Configuration for WU4Lox"
 	echo "address=/weather.loxone.com/$OWNIP" > /etc/dnsmasq.d/$pluginname.conf 
 	service dnsmasq restart > /dev/null 2>&1
 	# Enable Apache Config
+	echo "Enabling Apache2 Configuration for WU4Lox"
 	a2ensite 001-$pluginname > /dev/null 2>&1
 	service apache2 restart > /dev/null 2>&1
         exit 0
         ;;
   disable)
 	# Disable DNSMasq Config
+	echo "Disabling DNSMasq Configuration for WU4Lox"
 	rm /etc/dnsmasq.d/$pluginname.conf > /dev/null 2>&1
 	service dnsmasq restart > /dev/null 2>&1
 	# Disable Apache Config
+	echo "Disabling Apache2 Configuration for WU4Lox"
 	a2dissite 001-$pluginname > /dev/null 2>&1
 	service apache2 restart > /dev/null 2>&1
         exit 0
