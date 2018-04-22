@@ -48,7 +48,7 @@ case "$1" in
 	# Enable Apache Config
 	echo "Enabling Apache2 Configuration for WU4Lox"
 	a2ensite 001-$pluginname > /dev/null 2>&1
-	service apache2 restart > /dev/null 2>&1
+	service apache2 reload > /dev/null 2>&1
         exit 0
         ;;
   disable)
@@ -59,7 +59,7 @@ case "$1" in
 	# Disable Apache Config
 	echo "Disabling Apache2 Configuration for WU4Lox"
 	a2dissite 001-$pluginname > /dev/null 2>&1
-	service apache2 restart > /dev/null 2>&1
+	service apache2 reload > /dev/null 2>&1
         exit 0
         ;;
   *)
