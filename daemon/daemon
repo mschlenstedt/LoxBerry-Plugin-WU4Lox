@@ -48,5 +48,21 @@ if [ ! -e $LBPLOG/$pluginname/index.txt ]; then
 fi
 chown -vR loxberry:loxberry $LBPLOG/$pluginname/* 
 
+# Check for CloudEmu. If enabled, reinstall the config files just in case
+# the IP has changed
+# Source the iniparser
+. $LBHOMEDIR/libs/bashlib/iniparser.sh
+ 
+iniparser $LBPCONFIG/$pluginname/wu4lox.cfg "SERVER"
+
+if [ $SERVEREMU -eq 1 ]; then
+	echo "DAEMON: Reenable Cloud Emulator" >> $LBPLOG/$pluginname/wu4lox.log
+	if [ -x /usr/bin/logger ]; then
+		/usr/bin/logger "loxberry-plugin-$pluginname - Reenable Cloud Emulator"
+	fi
+	# Enable
+	$LBHOMEDIR/bin/plugins/$pluginname/cloudemu enable > /dev/null 2>&1
+fi
+
 # Exit with Status 0
 exit 0
