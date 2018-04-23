@@ -19,6 +19,7 @@
 # Modules
 ##########################################################################
 
+use Config::Simple '-strict';
 use CGI::Carp qw(fatalsToBrowser);
 use CGI;
 use LWP::UserAgent;
@@ -86,7 +87,7 @@ if ($R::saveformdata1) {
 		$querystation = $R::stationid;
 	} 
 	elsif ($R::stationtyp eq "coord") {
-		$querystation = $R::coordlat . "," .$R::coordlong;
+		$querystation = $R::coordlat . "," . $R::coordlong;
 	}
 	else {
 		$querystation = "autoip";
@@ -137,7 +138,11 @@ if ($R::saveformdata1) {
 	# Write configuration file(s)
 	$cfg->param("SERVER.WUAPIKEY", "$R::apikey");
 	$cfg->param("SERVER.STATIONTYP", "$R::stationtyp");
-	$cfg->param("SERVER.STATIONID", "\"$querystation\"");
+	if ($R::stationtyp eq "statid") {
+		$cfg->param("SERVER.STATIONID", "$querystation");
+	} else {
+		$cfg->param("SERVER.STATIONID", "$R::stationid");
+	}
 	$cfg->param("SERVER.COORDLAT", "$R::coordlat");
 	$cfg->param("SERVER.COORDLONG", "$R::coordlong");
 	$cfg->param("SERVER.GETWUDATA", "$R::getwudata");

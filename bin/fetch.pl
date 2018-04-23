@@ -47,7 +47,15 @@ my $pcfg             = new Config::Simple("$lbpconfigdir/wu4lox.cfg");
 my $wuurl            = $pcfg->param("SERVER.WUURL");
 my $wuapikey         = $pcfg->param("SERVER.WUAPIKEY");
 my $wulang           = $pcfg->param("SERVER.WULANG");
-my $stationid        = $pcfg->param("SERVER.STATIONID");
+my $stationid;
+if ($pcfg->param("SERVER.STATIONTYP") eq "statid") {
+	$stationid = $pcfg->param("SERVER.STATIONID");
+	$cfg->param("SERVER.STATIONID", "$querystation");
+} elsif ($pcfg->param("SERVER.STATIONTYP") eq "coord") {
+	$stationid = $pcfg->param("SERVER.COORDLAT") . "," . $pcfg->param("SERVER.COORDLONG");
+} else {
+	$stationid = "autoip"
+}
 
 # Create a logging object
 my $log = LoxBerry::Log->new ( 	name => 'fetch',
