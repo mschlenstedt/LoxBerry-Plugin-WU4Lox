@@ -80,6 +80,8 @@ my %L = LoxBerry::Web::readlanguage($template, "language.ini");
 if ($R::saveformdata1) {
 	
   	$template->param( FORMNO => '1' );
+	$R::coordlat =~ tr/,/./;
+	$R::coordlong =~ tr/,/./;
 
 	# Check for Station
 	our $querystation;
