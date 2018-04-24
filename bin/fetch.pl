@@ -35,7 +35,7 @@ use Getopt::Long;
 ##########################################################################
 
 # Version of this script
-my $version = "4.0.1";
+my $version = "4.1.1";
 
 #my $cfg             = new Config::Simple("$home/config/system/general.cfg");
 #my $lang            = $cfg->param("BASE.LANG");
@@ -50,7 +50,6 @@ my $wulang           = $pcfg->param("SERVER.WULANG");
 my $stationid;
 if ($pcfg->param("SERVER.STATIONTYP") eq "statid") {
 	$stationid = $pcfg->param("SERVER.STATIONID");
-	$cfg->param("SERVER.STATIONID", "$querystation");
 } elsif ($pcfg->param("SERVER.STATIONTYP") eq "coord") {
 	$stationid = $pcfg->param("SERVER.COORDLAT") . "," . $pcfg->param("SERVER.COORDLONG");
 } else {
