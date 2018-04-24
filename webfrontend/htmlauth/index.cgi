@@ -494,7 +494,7 @@ if ($R::form eq "1" || !$R::form) {
   # Check for installed DNSMASQ-Plugin
   my $checkdnsmasq = `cat $lbhomedir/data/system/plugindatabase.dat | grep -c -i DNSmasq`;
   if ($checkdnsmasq > 0) {
-    $template->param( EMUWARNING => $L{'ERR_DNSMASQ_PLUGIN'} );
+    $template->param( EMUWARNING => $L{'SETTINGS.ERR_DNSMASQ_PLUGIN'} );
   }
 
   # Cloudweather Emu
