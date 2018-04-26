@@ -35,7 +35,7 @@ use Getopt::Long;
 ##########################################################################
 
 # Version of this script
-my $version = "4.1.1";
+my $version = "4.1.2";
 
 #my $cfg             = new Config::Simple("$home/config/system/general.cfg");
 #my $lang            = $cfg->param("BASE.LANG");
@@ -95,6 +95,7 @@ LOGDEB "Status: $urlstatus";
 
 if ($urlstatuscode ne "200") {
   LOGCRIT "Failed to fetch data for $stationid\. Status Code: $urlstatuscode";
+  LOGEND "Exit.";
   exit 2;
 } else {
   LOGOK "Data fetched successfully for $stationid";
@@ -111,6 +112,7 @@ my $error = 0;
 open(F,">$lbplogdir/current.dat") or $error = 1;
 	if ($error) {
 		LOGCRIT "Cannot open $lbpconfigdir/current.dat";
+  		LOGEND "Exit.";
 		exit 2;
 	}
 	binmode F, ':encoding(UTF-8)';
@@ -211,6 +213,7 @@ $error = 0;
 open(F,">$lbplogdir/dailyforecast.dat") or $error = 1;
 	if ($error) {
 		LOGCRIT "Cannot open $lbplogdir/dailyforecast.dat";
+  		LOGEND "Exit.";
 		exit 2;
 	}
 	binmode F, ':encoding(UTF-8)';
@@ -294,6 +297,7 @@ $error = 0;
 open(F,">$lbplogdir/hourlyforecast.dat") or $error = 1;
 	if ($error) {
 		LOGCRIT "Cannot open $lbplogdir/hourlyforecast.dat";
+  		LOGEND "Exit.";
 		exit 2;
 	}
 	binmode F, ':encoding(UTF-8)';
@@ -426,5 +430,6 @@ if ($verbose) {
 }
 
 # Exit
+LOGEND "Exit.";
 exit;
 

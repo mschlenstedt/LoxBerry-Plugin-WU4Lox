@@ -32,7 +32,7 @@ use DateTime;
 ##########################################################################
 
 # Version of this script
-my $version = "4.1.5";
+my $version = "4.1.6";
 
 our $pcfg             = new Config::Simple("$lbpconfigdir/wu4lox.cfg");
 my  $udpport          = $pcfg->param("SERVER.UDPPORT");
@@ -1581,6 +1581,7 @@ if ($emu) {
 
 # Finish
 LOGOK "We are done. Good bye.";
+LOGEND "Exit.";
 exit;
 
 #
@@ -1623,4 +1624,5 @@ sub send {
 
 }
 
+LOGEND "Exit.";
 exit;
