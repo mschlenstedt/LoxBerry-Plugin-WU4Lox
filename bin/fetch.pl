@@ -68,7 +68,8 @@ my $verbose = '';
 GetOptions ('verbose' => \$verbose,
             'quiet'   => sub { $verbose = 0 });
 
-# Aus Sicherheitsgründen auskommentiert zum Test Loglevel aus Pluginmanagement
+# Due to a bug in the Logging routine, set the loglevel fix to 3
+$log->loglevel(3);
 if ($verbose) {
 	$log->stdout(1);
 	$log->loglevel(7);
