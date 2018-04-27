@@ -333,7 +333,6 @@ if ($R::form eq "1" || !$R::form) {
 
   $navbar{1}{active} = 1;
   $template->param( "FORM1", 1);
-  $template->param( FORMNO => '1' );
 
   my @values;
   my %labels;
@@ -427,6 +426,7 @@ if ($R::form eq "1" || !$R::form) {
 } elsif ($R::form eq "2") {
   $navbar{2}{active} = 1;
   $template->param( "FORM2", 1);
+  $template->param( "WEBSITE", "http://$ENV{HTTP_HOST}/plugins/wu4lox/weatherdata.html");
 
   # SendUDP
   @values = ('0', '1' );
@@ -490,6 +490,7 @@ if ($R::form eq "1" || !$R::form) {
 } elsif ($R::form eq "3") {
   $navbar{3}{active} = 1;
   $template->param( "FORM3", 1);
+  $template->param( "WEBSITE", "http://$ENV{HTTP_HOST}/plugins/wu4lox/webpage.html");
   
   # Check for installed DNSMASQ-Plugin
   my $checkdnsmasq = `cat $lbhomedir/data/system/plugindatabase.dat | grep -c -i DNSmasq`;
