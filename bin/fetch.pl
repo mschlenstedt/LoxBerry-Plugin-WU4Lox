@@ -28,6 +28,7 @@ use LoxBerry::System;
 use LoxBerry::Log;
 use LWP::UserAgent;
 use JSON qw( decode_json ); 
+use File::Copy;
 use Getopt::Long;
 
 ##########################################################################
@@ -110,9 +111,9 @@ LOGINF "Saving new Data for Timestamp $decoded_json->{current_observation}->{obs
 
 # Saving new current data...
 my $error = 0;
-open(F,">$lbplogdir/current.dat") or $error = 1;
+open(F,">$lbplogdir/current.dat.tmp") or $error = 1;
 	if ($error) {
-		LOGCRIT "Cannot open $lbpconfigdir/current.dat";
+		LOGCRIT "Cannot open $lbpconfigdir/current.dat.tmp";
   		LOGEND "Exit.";
 		exit 2;
 	}
@@ -197,11 +198,11 @@ open(F,">$lbplogdir/current.dat") or $error = 1;
 	print F "$decoded_json->{sun_phase}->{sunset}->{minute}";
 close(F);
 
-LOGOK "Saving current data to $lbplogdir/current.dat successfully.";
+LOGOK "Saving current data to $lbplogdir/current.dat.tmp successfully.";
 
 my @filecontent;
 LOGDEB "Database content:";
-open(F,"<$lbplogdir/current.dat");
+open(F,"<$lbplogdir/current.dat.tmp");
 	@filecontent = <F>;
 	foreach (@filecontent) {
 		chomp ($_);
@@ -211,9 +212,9 @@ close (F);
 
 # Saving new daily forecast data...
 $error = 0;
-open(F,">$lbplogdir/dailyforecast.dat") or $error = 1;
+open(F,">$lbplogdir/dailyforecast.dat.tmp") or $error = 1;
 	if ($error) {
-		LOGCRIT "Cannot open $lbplogdir/dailyforecast.dat";
+		LOGCRIT "Cannot open $lbplogdir/dailyforecast.dat.tmp";
   		LOGEND "Exit.";
 		exit 2;
 	}
@@ -285,7 +286,7 @@ close(F);
 LOGOK "Saving current data to $lbplogdir/dailyforecast.dat successfully.";
 
 LOGDEB "Database content:";
-open(F,"<$lbplogdir/dailyforecast.dat");
+open(F,"<$lbplogdir/dailyforecast.dat.tmp");
 	@filecontent = <F>;
 	foreach (@filecontent) {
 		chomp ($_);
@@ -295,9 +296,9 @@ close (F);
 
 # Saving new hourly forecast data...
 $error = 0;
-open(F,">$lbplogdir/hourlyforecast.dat") or $error = 1;
+open(F,">$lbplogdir/hourlyforecast.dat.tmp") or $error = 1;
 	if ($error) {
-		LOGCRIT "Cannot open $lbplogdir/hourlyforecast.dat";
+		LOGCRIT "Cannot open $lbplogdir/hourlyforecast.dat.tmp";
   		LOGEND "Exit.";
 		exit 2;
 	}
@@ -339,10 +340,10 @@ open(F,">$lbplogdir/hourlyforecast.dat") or $error = 1;
 	}
 close(F);
 
-LOGOK "Saving current data to $lbplogdir/hourlyforecast.dat successfully.";
+LOGOK "Saving current data to $lbplogdir/hourlyforecast.dat.tmp successfully.";
 
 LOGDEB "Database content:";
-open(F,"<$lbplogdir/hourlyforecast.dat");
+open(F,"<$lbplogdir/hourlyforecast.dat.tmp");
 	@filecontent = <F>;
 	foreach (@filecontent) {
 		chomp ($_);
@@ -351,8 +352,8 @@ open(F,"<$lbplogdir/hourlyforecast.dat");
 close (F);
 
 # Clean Up Databases
-LOGINF "Cleaning $lbplogdir/current.dat";
-open(F,"+<$lbplogdir/current.dat");
+LOGINF "Cleaning $lbplogdir/current.dat.tmp";
+open(F,"+<$lbplogdir/current.dat.tmp");
 	@filecontent = <F>;
 	seek(F,0,0);
 	truncate(F,0);
@@ -374,8 +375,8 @@ open(F,"+<$lbplogdir/current.dat");
 	}
 close(F);
 
-LOGINF "Cleaning $lbplogdir/dailyforecast.dat";
-open(F,"+<$lbplogdir/dailyforecast.dat");
+LOGINF "Cleaning $lbplogdir/dailyforecast.dat.tmp";
+open(F,"+<$lbplogdir/dailyforecast.dat.tmp");
 	@filecontent = <F>;
 	seek(F,0,0);
 	truncate(F,0);
@@ -397,8 +398,8 @@ open(F,"+<$lbplogdir/dailyforecast.dat");
 	}
 close(F);
 
-LOGINF "Cleaning $lbplogdir/hourlyforecast.dat";
-open(F,"+<$lbplogdir/hourlyforecast.dat");
+LOGINF "Cleaning $lbplogdir/hourlyforecast.dat.tmp";
+open(F,"+<$lbplogdir/hourlyforecast.dat.tmp");
 	@filecontent = <F>;
 	seek(F,0,0);
 	truncate(F,0);
@@ -419,6 +420,23 @@ open(F,"+<$lbplogdir/hourlyforecast.dat");
 		print F "$_\n";
 	}
 close(F);
+
+# Test downloaded files
+my $currentname = "$lbplogdir/current.dat.tmp";
+my $currentsize = -s ($currentname);
+if ($currentsize > 100) {
+        move($currentname, "$lbplogdir/current.dat");
+}
+my $dailyname = "$lbplogdir/dailyforecast.dat.tmp";
+my $dailysize = -s ($dailyname);
+if ($dailysize > 100) {
+        move($dailyname, "$lbplogdir/dailyforecast.dat");
+}
+my $hourlyname = "$lbplogdir/hourlyforecast.dat.tmp";
+my $hourlysize = -s ($hourlyname);
+if ($hourlysize > 100) {
+        move($hourlyname, "$lbplogdir/hourlyforecast.dat");
+}
 
 # Give OK status to client.
 LOGOK "Current Data and Forecasts saved successfully.";
